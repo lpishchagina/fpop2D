@@ -1,0 +1,3 @@
+useDynLib(fpop2D, .registration=TRUE)
+importFrom(Rcpp, evalCpp)
+exportPattern("^[[:alpha:]]+")

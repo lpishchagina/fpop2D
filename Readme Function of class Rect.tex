@@ -1,0 +1,193 @@
+\documentclass{report}
+\usepackage[left=2cm,right=2cm,
+top=2cm,bottom=2cm,bindingoffset=0cm]{geometry}
+\begin{document}
+	\begin{center}{\parindent =0pt \bfseries bool empty\_set(Rect R, Disk D)}\end{center}
+	\parindent=0pt
+	\underline { \bfseries{Description:}}
+	
+	The function detects the intersection of a rectangle and a circle.
+	
+	{\bfseries\underline{Input parameters:}}
+	
+	The function receives two parameters:
+	
+	\begin{itemize}
+		\item {\bfseries	R} is the rectangle, the element of class {\bfseries Rect} with characteristics:
+		\begin{itemize}
+			\item {\bfseries x0, y0} are coordinates of the bottom left corner;
+			\item {\bfseries x1, y1} are coordinates of the top right corner.
+		\end{itemize}
+	
+		To access these characteristics using the methods  {\bfseries get\_x0()}, {\bfseries get\_y0()}, {\bfseries get\_x1()}, {\bfseries get\_y1()}, implemented in the class {\bfseries Rect}.
+		
+		
+		\item {\bfseries D}  is the circle, the element of class {\bfseries Disk} with characteristics:
+		\begin{itemize}
+			\item {\bfseries c1, c2}  is the center of the circle;
+	
+			\item {\bfseries r}  is  the radius of the circle.
+		\end{itemize}
+		To access these characteristics using the methods {\bfseries get\_c1()}, {\bfseries get\_c2()}, {\bfseries get\_r()}, implemented in the class {\bfseries Disk}.
+		
+	\end{itemize}
+	
+	{\bfseries\underline{Output parameters:}}
+	\begin{itemize}
+		\item The function returns the boolean value of the parameter {\bfseries empty}.
+		\begin{itemize}
+		 \item $empty = true$ the rectangle and circle do not intersect;
+		 \item $ empty = false$ the rectangle and circle have an intersection.
+		\end{itemize}
+	\end{itemize}
+	{\bfseries\underline{Algorithm}}
+	
+	First of all, we check the condition: the center of the circle is inside the rectangle.
+	
+	If this condition is satisfied, the figure intersect.
+	
+	Else we consider four half-planes formed by the rectangle:
+	
+	\begin{itemize}
+		\item left half-plane $(c1 < x0)$;
+	 	\item right half-plane $(c1 > x1)$;
+		\item top half-plane $(c2 > y1)$;
+		\item bottom half-plane $(c2 < y0)$.
+	\end{itemize}
+	
+	In the equation of the circle, we substitute the equations of the boundaries of each half-plane and find the discriminants of the obtained square equations.
+	
+	A circle does not intersect with a straight line if the equation has no solutions, i.e. the discriminant is negative.
+	
+	We check the intersection of the circle with the half-plane boundary. If there is no intersection, then the parameter $empty  =  true$. In case there is an intersection, we also check the intersection of the circle with the straight lines passing through the sides of the rectangle orthogonal to the half-plane boundary. In the case of an intersection, the parameter $empty  =  false$.
+
+
+
+
+
+	\begin{center}{ \bfseries Rect intersection (Rect R, Disk D)}\end{center}
+
+	\underline{\bfseries{Description:}}
+	
+	The function approximates the area of intersection of the rectangle and the circle with orthogonal lines. Based on the intersection points of these lines, we construct a rectangle with a minimum area, which contains the intersection area of the rectangle and the circle.
+	 
+	{\bfseries\underline{Input parameters:}}
+	
+	The function receives two parameters:
+	
+	\begin{itemize}
+		\item {\bfseries	R} is the rectangle, the element of class {\bfseries Rect} with characteristics:
+		\begin{itemize}
+			\item {\bfseries x0, y0} are coordinates of the bottom left corner;
+			\item {\bfseries x1, y1} are coordinates of the top right corner.
+		\end{itemize}
+		To access these characteristics using the methods  {\bfseries get\_x0()}, {\bfseries get\_y0()}, {\bfseries get\_x1()}, {\bfseries get\_y1()}, implemented in the class {\bfseries Rect}.
+		
+		\item {\bfseries D}  is the circle, the element of class {\bfseries Disk} with characteristics:
+		\begin{itemize}
+			\item {\bfseries c1, c2}  is the center of the circle;
+			\item {\bfseries r}  is  the radius of the circle.
+		\end{itemize}
+	
+		To access these characteristics using the methods {\bfseries get\_c1()}, {\bfseries get\_c2()}, {\bfseries get\_r()}, implemented in the class {\bfseries Disk}.
+	\end{itemize}
+
+	{\bfseries Note:} The rectangle and the circle must intersect.
+	
+	{\bfseries\underline{Output parameters:}}
+	
+	\begin{itemize}
+		\item The function returns new rectangle {\bfseries newR} (the element of class {\bfseries Rect}) with a minimum area, which contains the intersection area of the rectangle {\bfseries R} and the circle {\bfseries D}.
+	\end{itemize}
+	The rectangle is formed as a result of the intersection of orthogonal lines that approximate the intersection area of the rectangle and the circle.
+	
+	\underline{\bfseries{Algorithm}}
+	
+	\parindent=10pt{ \bfseries Preprocessing}
+	
+	\parindent= 0pt We define two variables $(t1, t2)$ for the potential intersection points of the orthogonal line and the circle.
+	We consider four half-planes formed by the rectangle:
+	
+	\begin{itemize}
+		\item left half-plane $(c1 < x0)$;
+		\item right half-plane $(c1 > x1)$;
+		\item top half-plane $(c2 > y1)$;
+		\item bottom half-plane $(c2 < y0)$.
+	\end{itemize}
+	
+	In the equation of the circle, we substitute the equations of the boundaries of each half-plane and find the discriminants $(dx0, dx1, dy0, dr1)$  of the obtained square equations.
+	
+	\parindent=10pt{\bfseries Approximation}
+	
+	\parindent=0pt We need to consider the following cases:
+	\begin{itemize}
+		\item the center of the circle is inside the rectangle:
+		\begin{itemize}
+			\item If the center of the disk inside the rectangle we define the characteristics of rectangle {\bfseries newR} as:
+			
+				\parindent=50pt
+				$x0 = \max\{x0, c1-r\}$;
+			
+				$x1 = \min\{x1, c1+r\}$;
+			
+				$y0 = \max\{y0, c2-r\}$;
+			
+				$y1 = \min\{y1, c2+r\}$;
+		\end{itemize}
+		\item the center of the circle lies in one of the half-planes and the circle and the rectangle have only one point of the intersection (discriminant is equal $0$):
+		
+		\begin{itemize}
+			\item If the center of the circle lies in one of the half-planes and the circle and the rectangle have only one point of the intersection (discriminant is equal $0$) we define the characteristics of rectangle {\bfseries newR} as the point:
+			
+			\parindent=50pt
+			$(x0,c2)$ –  for left the half-plane;
+			
+			$(x1,c2)$ –  for the right half-plane;
+			
+			$(c1,y1)$ – for top half-plane;
+			
+			$(c1,y0)$ – for bottom half-plane.
+			
+		\end{itemize}
+		
+		\item the center of the circle lies in one of the half-planes and intersects the boundary of the half-plane at two points (discriminant is greater $0$):
+		\begin{itemize}
+			\item If the center of the circle lies in one of the half-planes and intersects the boundary of the half-plane at two points (discriminant is greater $0$) we consider half-plane corresponding to center of circle and solve the problem of finding local extremum of a function (circle) in a bounded domain ($x0 \le x \le x1, y0 \le y \le y1$).
+				
+		\end{itemize}
+	\end{itemize}
+
+	{\bfseries Note:}
+	We consider the procedure in more detail using an example of the bottom half-plane.
+	
+	\parindent=10pt {\bfseries The bottom half-plane}
+	\parindent=0pt
+	
+	For the bottom half-plane we need consider the top half of the circle.
+	
+	First, we find the points of intersection of the circle and the border of the half-plane.
+	If the points lie on the side of rectangle, then we redefine $x0$ and $x1$ as:
+	
+	\parindent=50pt
+	$x0 = \max\{x0, t1\}$;
+	
+	$x1 = \min\{x0, t2\}$.
+	
+	\parindent=0pt
+	If boundary point $(c1, c2 + r)$ of the circle is inside the rectangle we can redefine $y1  = c2 + r$, else we need to find the points of intersection (in our code $t1, t2$) of the circle with the sides orthogonal to the boundary of the half-plane and redefine $y1$ as:
+	
+	 \parindent=50pt $y1 = \min\{y1, \max\{t1,t2\}\}$.
+	 
+	\parindent=0pt
+	{\bfseries Note:}
+	$x1 = \min\{x1, \max\{t1,t2\}\}$ for the left half-plane;
+	$x0 = \max\{x0, \min\{t1,t2\}\}$ for right half-plane;
+	$y0 = \max\{y0, \min\{t1, t2\}\}$ for top half-plane;
+	$y1 = \min\{y1, \max\{t1, t2\}\}$ for bottom half-plane.
+	
+	\parindent=10pt{ \bfseries Output:}
+	
+	\parindent=0pt	
+	After we have updated all the characteristics, we form the required rectangle {\bfseries newR}.
+	
+\end{document}
