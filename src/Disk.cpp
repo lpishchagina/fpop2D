@@ -1,18 +1,24 @@
-#include < iostream >
+#include "Disk.h"
 
-# include "Disk.h"
+#include<math.h>
+#include<iostream>
 
-Disk::Disk(double dc1, double dc2, double dr)
-{
-   c1 = dc1;    // coordinates of center
-   c2 = dc2;
-   r = dr;  
+using namespace std;
+
+//--------------constructor------------------------------------
+Disk::Disk(){
+  center1 = 0;    // coordinates of center
+  center2 = 0;
+  radius = 0;  
 }
+Disk::Disk(double c1, double c2, double r)
+{
+  center1 = c1;    // coordinates of center
+  center2 = c2;
+  radius = r;  
+}
+//--------------accessory------------------------------------
+double Disk::get_radius() {return radius;}
+double Disk::get_center1(){return center1;}
+double Disk::get_center2(){return center2;}
 
-double Disk::get_r() {return r;}
-double Disk::get_c1(){return c1;}
-double Disk::get_c2(){return c2;}
-std::list < Disk > Disk::get_list_disk(){return list_disk;}
-  
-std::list < Disk > Disk::add_disk(Disk* D) { list_disk.push_back(D);}
-std::list < Disk > Disk::del_disk(Disk* D) { list_disk.erase(D);}

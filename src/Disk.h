@@ -2,27 +2,21 @@
 #define DISK_H
 
 #include < math.h >
-#include < list >
-#include < iterator >
 
 class Disk{
 public:
-  Disk(double dc1, double dc2, double dr);
-  double get_r();
-  double get_c1();
-  double get_c2();
-  
-  std::list < Disk > add_disk(Disk* D);
-  
-  std::list < Disk > del_disk(Disk* D);
-  
-  std::list < Disk > get_list_disk();
+  //--------------constructor------------------------------------
+  Disk();
+  Disk(double c1, double c2, double r);
+  //--------------accessory------------------------------------
+  double get_radius();
+  double get_center1();
+  double get_center2();
   
 private:
-  double c1;    // coordinates of center
-  double c2;
-  double r;     // radius
-  std::list < Disk > list_disk;   //set of disks
+  double center1;    // coordinates of center
+  double center2;
+  double radius;     // radius
 };
 
 #endif //DISK_H
