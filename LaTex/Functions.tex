@@ -256,20 +256,22 @@
 
 	\subsubsection*{Output}
 
-
-Once all the parameters are updated we form the required rectangle {\bfseries rect\_approx}.
-
+Once all the parameters are updated we form the required rectangle {\bfseries rect\_approx} as:
+\begin{equation}
+	rect\_approx = Rect(x0, y0, x1, y1);
+	\label{rect}
+\end{equation}
 \newpage
 	
 \begin{center} 
-	\section*{Rect Geom::substraction(Rect rect, Disk disk)}
+	\section*{Rect Geom::difference(Rect rect, Disk disk)}
 \end{center}
 \parindent = 0pt
 \subsection*{Description}
 
-The function approximates a rectangle and a circle substraction area by horizontal and vertical lines. Basing on the intersection points of these lines, we construct a rectangle with a minimum area, which contains the substraction area of the rectangle and the circle.
+The function approximates a rectangle and a circle difference area by horizontal and vertical lines. Basing on the intersection points of these lines, we construct a rectangle with a minimum area, which contains the difference area of the rectangle and the circle.
 
-If the substraction is the empty set, the function returns the rectangle with parameters that correspond to the condition (\ref{eq:cond1}).
+If the difference is the empty set, the function returns the rectangle with parameters that correspond to the condition (\ref{eq:cond1}).
 
 \subsection*{Input parameters:}
 
@@ -296,9 +298,9 @@ The input of this function consists of two parameters:
 \subsection*{Output parameters:}
 
 \begin{itemize}
-	\item The function returns new rectangle {\bfseries rect\_approx} (the element of class {\bfseries Rect}) with a minimum area, which contains the substraction area of the rectangle {\bfseries rect} and the circle {\bfseries disk}. The rectangle is formed as a result of the intersection of horizontal and vertical lines that approximate the substraction area of the rectangle and the circle.
+	\item The function returns new rectangle {\bfseries rect\_approx} (the element of class {\bfseries Rect}) with a minimum area, which contains the difference area of the rectangle {\bfseries rect} and the circle {\bfseries disk}. The rectangle is formed as a result of the intersection of horizontal and vertical lines that approximate the difference area of the rectangle and the circle.
 	
-	If the substraction is the empty set, the function returns a rectangle {\bfseries rect\_approx} with parameters that correspond to the condition (\ref{eq:cond1}).
+	If the difference is the empty set, the function returns a rectangle {\bfseries rect\_approx} with parameters that correspond to the condition (\ref{eq:cond1}).
 	
 \end{itemize}
 
@@ -324,15 +326,15 @@ We consider one the following cases:
 
 \begin{itemize}
 	
-	\item The substraction area is the empty set.
+	\item The difference area is the empty set.
 	
 	\begin{itemize}
 		
- 		\item If all the values $dl$, $dr$, $db$, $dt$  are positive, the rectangle is inside the disk and the substraction area is the empty set. We define the characteristics of rectangle as (\ref{eq:empty}).
+ 		\item If all the values $dl$, $dr$, $db$, $dt$  are positive, the rectangle is inside the disk and the difference area is the empty set. We define the characteristics of rectangle as (\ref{eq:empty}).
  		
  	\end{itemize}
  
-   \item The substraction area is not the empty set.
+   \item The difference area is not the empty set.
  
    We consider two directions and update the characteristics of rectangle:
 	
@@ -342,7 +344,7 @@ We consider one the following cases:
 		
 		We consider the points of intersection of the circle with straight lines $x = x0$ and $x = x1$. The circle has two intersection points with a straight line if the discriminant is positive.
 		
-		{\bfseries Note:} We define the default intersection points for the algorithm to work correctly as (\ref{eq:lrinf}).
+		{\bfseries Note:} we define the default intersection points for the algorithm to work correctly as (\ref{eq:lrinf}).
 		
 		We check the sign of $dl, dr$ and find the intersection points (\ref{eq:l1l2}) and (\ref{eq:r1r2}).
 		
@@ -377,7 +379,7 @@ We consider one the following cases:
 
 \subsubsection*{Output}
 
-Once all the parameters are updated we form the required rectangle {\bfseries rect\_approx}.
+Once all the parameters are updated we form the required rectangle {\bfseries rect\_approx} as (\ref{rect}).
 
 \newpage
 \begin{center} 
@@ -403,7 +405,7 @@ To access these characteristics we use the methods  {\bfseries get\_rectx0()}, {
 
 \subsection*{Output parameters:}
 
-The function returns a boolean value {\bfseries true} If the rectangle is empty, and {\bfseries false} if it is not empty.
+The function returns a boolean value {\bfseries true} if the rectangle is empty, and {\bfseries false} if it is not empty.
 
 \subsection*{Algorithm:}
 

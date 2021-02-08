@@ -8,9 +8,25 @@
 
 using namespace std;
 
+//--------------constructor------------------------------------
+Geom::Geom(double K, unsigned int t){
+  label_t = t;
+  m_t = Cost(K);
+  rect_t = Rect();
+}
 //--------------accessory------------------------------------
-unsigned int Geom::get_label(){return label;}
-//Rect Geom::get_rect(){return rectangle;}
+unsigned int Geom::get_label_t(){return label_t;}
+Rect Geom::get_rect_t(){return rect_t;}
+Cost Geom::get_m_t(){return m_t;}
+
+//--------------disk_it------------------------------------
+Disk Geom::disk_it(double new_m_i) //new_m_t =  = Cost(coef_Var + mi_1 + penalty, t)
+{
+  double r_it = sqrt((new_m_i - m_t.get_m_i_penalty())/m_t.get_coef() - m_t.get_coef_Var()));
+  
+  Disk new_disk = Disk(m_t.get_mu1(), m_t.get_mu1(), r_it);
+}
+
 
 //--------------empty_set------------------------------------
 bool Geom::empty_set(Rect rect){        //checking for emptiness of an approximated set 
@@ -107,8 +123,8 @@ Rect Geom::intersection(Rect rect, Disk disk){//// intersection approximation
   Rect rect_approx = Rect(x0, y0, x1, y1); // intersection approximation
   return rect_approx;
 }
-//--------------substraction------------------------------------  
-Rect Geom::substraction(Rect rect, Disk disk){// substraction approximation
+//--------------difference------------------------------------  
+Rect Geom::difference(Rect rect, Disk disk){// difference approximation
   double r = disk.get_radius();         //parameters of the disk
   double c1 = disk.get_center1();
   double c2 = disk.get_center2();
@@ -126,7 +142,7 @@ Rect Geom::substraction(Rect rect, Disk disk){// substraction approximation
   double dt = r * r + (y1 - c2) * (y1 - c2);//y = y1
 
   //approximation//
-  if(dl > 0 && dr > 0 && db > 0 && dt > 0){x0 = x1;}// // the rectangle is inside the disk =>  substraction = empty set
+  if(dl > 0 && dr > 0 && db > 0 && dt > 0){x0 = x1;}// // the rectangle is inside the disk =>  difference = empty set
   else{
     if(dl > 0 || dr > 0){ // horizontal direction: boundary y0, y1 
       double l1 = INFINITY;  // intersection points
@@ -168,6 +184,6 @@ Rect Geom::substraction(Rect rect, Disk disk){// substraction approximation
       if(x1 > b1){x1 = b1;} //x1 = min{x1, max{b1, t1}}
     }//if(dt > 0 || db > 0)
   }//else
-  Rect rect_approx = Rect(x0, y0, x1, y1); // substraction approximation
+  Rect rect_approx = Rect(x0, y0, x1, y1); // difference approximation
   return rect_approx;
 }
