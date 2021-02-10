@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 21.1) (preloaded format=pdflatex 2021.2.6)  8 FEB 2021 14:42
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 21.1) (preloaded format=pdflatex 2021.2.6)  10 FEB 2021 13:33
 entering extended mode
 **./Functions.tex
 (Functions.tex
@@ -169,13 +169,13 @@ LaTeX Font Info:    ... okay on input line 4.
 {C:/Users/Pishchagin/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
 [2] [3] [4] [5] [6] (Functions.aux) ) 
 Here is how much of TeX's memory you used:
- 1641 strings out of 479622
- 23378 string characters out of 2873151
- 315488 words of memory out of 3000000
- 18838 multiletter control sequences out of 15000+200000
+ 1642 strings out of 479622
+ 23397 string characters out of 2873151
+ 316497 words of memory out of 3000000
+ 18839 multiletter control sequences out of 15000+200000
  405737 words of font info for 35 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 68i,9n,74p,439b,246s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 68i,9n,74p,439b,190s stack positions out of 5000i,500n,10000p,200000b,50000s
  <C:\Users\Pishchagin\AppData\Local\MiKTeX
 \2.9\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1000.pk><C:/Program Files/MiKTeX 2.
 9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/
@@ -184,7 +184,7 @@ blic/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/ams
 fonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm
 /cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb
 ><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on Functions.pdf (6 pages, 100968 bytes).
+Output written on Functions.pdf (6 pages, 100969 bytes).
 PDF statistics:
  54 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
