@@ -1,6 +1,6 @@
 
 <a id="top"></a>
-#  OptPartitioning2D Vignette
+#  fpop2D Vignette
 ### Liudmila Pishchagina
 ### February 11, 2021
 
