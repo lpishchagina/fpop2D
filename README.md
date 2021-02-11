@@ -20,7 +20,7 @@ We install the package from Github:
 library(fpop2D)
 ```
 
-## The function GenData2D
+## The function data_gen2D
 
 The `data_gen2D` function simulates a bivariate time series with the arguments:
 
