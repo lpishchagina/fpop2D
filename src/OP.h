@@ -19,8 +19,10 @@ public:
   std::vector<std::vector<double>> get_sy12();
   //--------------preprocessing------------------------------------
   std::vector<std::vector<double>> vect_sy12(std::vector<double>& y1, std::vector<double>& y2);
+  //--------------backtracking------------------------------------
+  void backtracking(unsigned int ndata);
   //--------------algoFPOP------------------------------------
-  void algoFPOP(std::vector< double >& y1, std::vector< double >& y2, double beta, int type);
+  void algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type);
 private:
   double penalty;
   unsigned int n;

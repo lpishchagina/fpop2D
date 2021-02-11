@@ -41,11 +41,31 @@ std::vector<std::vector<double>> OP::vect_sy12(std::vector<double>& y1, std::vec
   }
   return(sy12);
 }
+//--------------backtracking------------------------------------
+void OP::backtracking(unsigned int ndata){
+  {
+    globalCost = m[n-1];
+    int chpt_temp = n-1;
+    double mean1tT;
+    double mean2tT;
+    while (chpt_temp > 0)
+    {
+      changepoints.push_back(chpt_temp);
+      mean1tT = (sy12[chpt_temp][0] - sy12[last_changepoints[chpt_temp]][0]) / (chpt_temp - last_changepoints[chpt_temp]);
+      mean2tT = (sy12[chpt_temp][1] - sy12[last_changepoints[chpt_temp]][1]) / (chpt_temp - last_changepoints[chpt_temp]);
+      means1.push_back(mean1tT);
+      means2.push_back(mean2tT);
+      chpt_temp = last_changepoints[chpt_temp];
+    }
+    reverse(changepoints.begin(), changepoints.end());
+    reverse(means1.begin(), means1.end());
+    reverse(means2.begin(), means2.end());
+  }
+}
 //--------------algoFPOP------------------------------------
-void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, double beta, int type)
+void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type)
 {
   n = y1.size();
-  penalty = beta;
   Cost cost;
   double cost_temp = 0;
   double m_temp = 0;

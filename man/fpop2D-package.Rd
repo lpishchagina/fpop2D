@@ -3,20 +3,18 @@
 \alias{fpop2D}
 \docType{package}
 \title{
-  A short title line describing what the package does
+  unctional Pruning Optimal Partitioning algorithm for 2 bivariate time-series.
 }
 \description{
-  A more detailed description of what the package does. A length
-  of about one to five lines is recommended.
+  fpop2D is an R package written in Rcpp/C++ and developed to change-point detection in 2 bivariate time-series.
 }
 \details{
-  This section should provide a more detailed overview of how to use the
-  package, including the most important functions.
+  The package implements the Functional Pruning Optimal Partitioning algorithm with two types of pruning: "intersection of sets" and "difference of intersection and union of sets". 
 }
 \author{
-Your Name, email optional.
+Liudmila Pishchagina, ludmilashabarshova1991@gmail.com.
 
-Maintainer: Your Name <your@email.com>
+Maintainer: Liudmila Pishchagina <ludmilashabarshova1991@gmail.com.com>
 }
 \references{
   This optional section can contain literature or other references for

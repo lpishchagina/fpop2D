@@ -226,7 +226,7 @@
     },
     {
         "file": "F:/fevrier/fpop2D/src/OP.cpp",
-        "file_last_write": 1612985984.0,
+        "file_last_write": 1613031766.0,
         "definitions": [
             {
                 "usr": "c:@S@OP@F@get_changepoints#1",
@@ -292,19 +292,28 @@
                 "column": 38
             },
             {
-                "usr": "c:@S@OP@F@algoFPOP#&I#S0_#d#I#",
+                "usr": "c:@S@OP@F@backtracking#i#",
                 "kind": 7,
                 "parent_name": "OP",
-                "name": "algoFPOP(int &, int &, double, int)",
+                "name": "backtracking(unsigned int)",
                 "file": "F:/fevrier/fpop2D/src/OP.cpp",
                 "line": 45,
+                "column": 10
+            },
+            {
+                "usr": "c:@S@OP@F@algoFPOP#&I#S0_#I#",
+                "kind": 7,
+                "parent_name": "OP",
+                "name": "algoFPOP(int &, int &, int)",
+                "file": "F:/fevrier/fpop2D/src/OP.cpp",
+                "line": 66,
                 "column": 10
             }
         ]
     },
     {
         "file": "F:/fevrier/fpop2D/src/OP.h",
-        "file_last_write": 1612983469.0,
+        "file_last_write": 1613031766.0,
         "definitions": [
             {
                 "usr": "c:@S@OP",
@@ -375,16 +384,16 @@
         ]
     },
     {
-        "file": "F:/fevrier/fpop2D/src/rcpp_hello_world.cpp",
-        "file_last_write": 1612534819.0,
+        "file": "F:/fevrier/fpop2D/src/fpop2D.cpp",
+        "file_last_write": 1613034822.0,
         "definitions": [
             {
-                "usr": "c:@F@rcpp_hello_world#",
+                "usr": "c:@F@FPOP2D#I#I#d#I#",
                 "kind": 6,
                 "parent_name": "",
-                "name": "rcpp_hello_world",
-                "file": "F:/fevrier/fpop2D/src/rcpp_hello_world.cpp",
-                "line": 6,
+                "name": "FPOP2D(int, int, double, int)",
+                "file": "F:/fevrier/fpop2D/src/fpop2D.cpp",
+                "line": 31,
                 "column": 6
             }
         ]
