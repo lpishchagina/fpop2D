@@ -6,7 +6,7 @@
 
 ## Quick Start
 
-`fpop2D` is an R package written in Rcpp/C++ and developed to change-point detection in 2 bivariate time-series.
+`fpop2D` is an R package written in Rcpp/C++ and developed to change-point detection in bivariate time-series.
 
 The package implements the Functional Pruning Optimal Partitioning algorithm with two types of pruning: "intersection of sets" and "difference of intersection and union of sets". 
 
