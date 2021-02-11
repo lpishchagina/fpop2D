@@ -23,12 +23,13 @@ public:
   void backtracking(unsigned int ndata);
   //--------------algoFPOP------------------------------------
   void algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type);
+  
 private:
   double penalty;
   unsigned int n;
   
   std::vector<std::vector<double>> sy12;  // vector sum y1,y2, y1^2, y2^2
-  std::vector< int >last_changepoints;
+  std::vector< int >last_chpts;
   std::vector<double> m;//cost
   std::vector< int > changepoints; 
   std::vector< double > means1; 

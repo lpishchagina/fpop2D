@@ -1,24 +1,26 @@
 #include "Geom.h"
 #include "Disk.h"
 #include "Rect.h"
-
+#include "Cost.h"
 #include <iostream>
 
 using namespace std;
 
 //--------------constructor------------------------------------
-Geom::Geom(unsigned int t){
-  label_t = t;
-  rect_t = Rect();
-}
-
-Geom::Geom(double c1, double c2, double r, double t){
+Geom::Geom(double c1, double c2, double r, double t, double m_ipen){ // start geom
   label_t = t;
   rect_t = Rect(c1-r, c2-r, c1+r, c2+r);
+  cost_t = Cost(m_ipen);
+}
+Geom::Geom(double lbl, Cost cst, Rect rct){
+  label_t = lbl;
+  rect_t = rct;
+  cost_t = cst;
 }
 //--------------accessory------------------------------------
 unsigned int Geom::get_label_t(){return label_t;}
 Rect Geom::get_rect_t(){return rect_t;}
+Cost Geom::get_cost_t(){return cost_t;}
 //--------------min max------------------------------------
 double Geom::min_ab(double a, double b){
  if (a < b) {return a;} else {return b;}
@@ -26,15 +28,6 @@ double Geom::min_ab(double a, double b){
 double Geom::max_ab(double a, double b){
   if (a > b) {return a;} else {return b;}
 }
-//--------------disk_it------------------------------------
-Disk Geom::disk_it(Cost newcost) //
-{
-  double r_it = sqrt( (newcost.get_min() - newcost.get_mi_1_penalty())/newcost.get_coef() - newcost.get_coef_Var() );
-  
-  Disk new_disk = Disk(newcost.get_mu1(), newcost.get_mu1(), r_it);
-}
-
-
 //--------------empty_set------------------------------------
 bool Geom::empty_set(Rect rect){        //checking for emptiness of an approximated set 
   double x0 = rect.get_rectx0();        //parameters of the rectangle 

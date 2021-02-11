@@ -16,7 +16,6 @@ OP::OP(std::vector<double>& y1, std::vector<double>& y2, double beta){
   penalty = beta;
   n = y1.size();
   last_changepoints.push_back(0);
-  m.push_back(-penalty); //стоит добавлять или нет
   m.push_back(0);
 }
 //--------------accessory------------------------------------
@@ -51,11 +50,11 @@ void OP::backtracking(unsigned int ndata){
     while (chpt_temp > 0)
     {
       changepoints.push_back(chpt_temp);
-      mean1tT = (sy12[chpt_temp][0] - sy12[last_changepoints[chpt_temp]][0]) / (chpt_temp - last_changepoints[chpt_temp]);
-      mean2tT = (sy12[chpt_temp][1] - sy12[last_changepoints[chpt_temp]][1]) / (chpt_temp - last_changepoints[chpt_temp]);
+      mean1tT = (sy12[chpt_temp][0] - sy12[last_chpts[chpt_temp]][0]) / (chpt_temp - last_chpts[chpt_temp]);
+      mean2tT = (sy12[chpt_temp][1] - sy12[last_chpts[chpt_temp]][1]) / (chpt_temp - last_chpts[chpt_temp]);
       means1.push_back(mean1tT);
       means2.push_back(mean2tT);
-      chpt_temp = last_changepoints[chpt_temp];
+      chpt_temp = last_chpts[chpt_temp];
     }
     reverse(changepoints.begin(), changepoints.end());
     reverse(means1.begin(), means1.end());
@@ -63,60 +62,68 @@ void OP::backtracking(unsigned int ndata){
   }
 }
 //--------------algoFPOP------------------------------------
-void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type)
-{
+void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type){
   n = y1.size();
-  Cost cost;
-  double cost_temp = 0;
-  double m_temp = 0;
-  int chpt_temp = 0;
-  Disk disk_t;
-  
-  std::list <Geom> list_geom;
-  std::list<Geom> ::iterator it_list_geom;
-  
-  Geom geom = (y1[0], y2[0], sqrt(penalty), 0);// start: rectangle 
-  list_geom.push_back(geom); // list contains  1 geom
   sy12 = vect_sy12(y1, y2);
-  Geom geom_temp;
-  Rect geom_rect;
   
-  //cycle 
-  for(unsigned int t = 1; t < n; t++){
-    m_temp = INFINITY;
-    chpt_temp = 0;
-    it_list_geom = list_geom.begin();
+  double m_new = 0;   // variables for finding minimum value of cost 
+  double m_temp;
+  int chpt_new = 0;   // argument of minimum 
+  Cost cost_new;
+ 
+  std::list <Geom> list_geom; // list of geom, every geom has 3 elements: label_t, rect_t, cost_t
+  std::list<Geom> ::iterator it_list;
+  
+  Geom geom_new = Geom(y1[0], y2[0], sqrt(penalty), 0, penalty);// initialization of first geom
+  list_geom.push_back(geom_new); // list contains  1 geom
+  
+  //algoFPOP 
+  for(unsigned int t = 1; t < n; t++){ //the  position "0" is filled
+    m_new = INFINITY;                 
+    chpt_new = 0;
     
-    while(it_list_geom != list_geom.end())
-    {
-      geom_temp = *it_list_geom;
-      unsigned int i = geom_temp.get_label_t();
-      cost = Cost();//(i, t, sy12, m[i-1]);//подумать здесь точно ошибка m[i-1] может стоит еще положить пенальти
-      cost_temp = cost.get_min();
-        if (m_temp > cost_temp){
-          m_temp =cost_temp;
-          chpt_temp = i;
-        }
-        ++it_list_geom;
-    }
-    m[t] = m_temp;
-    last_changepoints[t] = chpt_temp;
-    /*
-    //pruning "intersection" type = 1
-    if (type == 1){
-      disk_t = Disk(); //сделать новый диск правильно
-      it_list_geom = list_geom.begin();
-      while(it_list_geom != list_geom.end()){
-        geom_temp = *it_list_geom;
-        geom_rect = geom_temp.get_rect_t();
-        //сделать пересечение
-        geom_rect = geom_rect.intersection(geom_rect,disk_t); //геометрия а не прямоугольник,  исправить
-        if (geom_rect.empty_set()){ //геометрия а не прямоугольник,  исправить
-          it_list_geom = list_geom.erase(it_list_geom);//удалили пустую геометрию
-        }
-        else {++it_list_geom;}
+    //first run: search m_new
+    it_list = list_geom.begin();
+    while(it_list != list_geom.end()){// finding m_new
+      geom_new = *it_list;
+      cost_new = geom_new.get_cost_t();
+      m_temp = cost_new.get_min();
+      if (m_temp < m_new){
+          m_new = m_temp;
+          chpt_new = geom_new.get_label_t();
       }
-      list_geom.push_back(geom_temp);//отследить , корректно задать геометрию
+      ++it_list;
     }
-     */
+    m[t] = m_new;                 // m[n-1] - globalCost
+    last_chpts[t] = chpt_new;     // save arg min
+    
+    //second run: pruning 
+    //type = 1 pruning "intersection" 
+    Disk disk_new;
+    Rect rect_new;
+    double r_new;
+    Geom geom_update;
+    
+    if (type == 1){
+      it_list = list_geom.begin();
+      while(it_list != list_geom.end()){
+        geom_new = *it_list;
+        cost_new = geom_new.get_cost_t();
+        r_new = sqrt((m_new - cost_new.get_mi_1_p())/cost_new.get_coef() - cost_new.get_coef_Var());
+        disk_new = Disk(cost_new.get_mu1(), cost_new.get_mu2(), r_new);
+        geom_update = Geom(geom_new.get_label_t(), geom_new.get_cost_t(), geom_new.intersection(geom_new.get_rect_t(), disk_new));
+        it_list = list_geom.erase(it_list);// delete previous geom
+        if (!geom_update.empty_set(geom_update.get_rect_t())){ //if  empty => delete else update geom
+         list_geom.insert(it_list,geom_update);
+          ++it_list;
+        }
+      }
+      geom_new = Geom(y1[t], y2[t], sqrt(m_new-m[t-1]), t, m[t-1]);// geom_tt
+      list_geom.push_back(geom_new);
+    }
+    
+   /* //type = 2 pruning "intersection\union"
+    if (type == 2){}
+    */
+  }
 }

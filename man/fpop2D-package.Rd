@@ -12,9 +12,9 @@
   The package implements the Functional Pruning Optimal Partitioning algorithm with two types of pruning: "intersection of sets" and "difference of intersection and union of sets". 
 }
 \author{
-Liudmila Pishchagina, ludmilashabarshova1991\@gmail.com.
+Liudmila Pishchagina, ludmilashabarshova1991@gmail.com.
 
-Maintainer: Liudmila Pishchagina <ludmilashabarshova1991\@gmail.com.com>
+Maintainer: Liudmila Pishchagina <ludmilashabarshova1991@gmail.com.com>
 }
 \references{
   
