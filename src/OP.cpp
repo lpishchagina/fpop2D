@@ -15,7 +15,7 @@ using namespace std;
 OP::OP(std::vector<double>& y1, std::vector<double>& y2, double beta){
   penalty = beta;
   n = y1.size();
-  last_changepoints.push_back(0);
+  last_chpts.push_back(0);
   m.push_back(0);
 }
 //--------------accessory------------------------------------

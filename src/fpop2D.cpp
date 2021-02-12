@@ -38,7 +38,7 @@ List FPOP2D(std::vector<double> data1, std::vector<double> data2, double penalty
   OP Y = OP(data1,data2, penalty);
   
   if(type == 1) {Y.algoFPOP(data1, data2, type);}     //FPOP algorithm: type of pruning  = intersection
-//  if(type == 2) {Y.algoPELT(data1, data2, type);}   //FPOP algorithm: type of pruning = intersection \ difference
+//  if(type == 2) {Y.algoFPOP(data1, data2, type);}   //FPOP algorithm: type of pruning = intersection \ difference
   
   Y.backtracking(Y.get_n());                           //algorithm results 
   
