@@ -1,7 +1,7 @@
 #ifndef RECT_H
 #define RECT_H
 
-#include < math.h >
+#include "math.h"
 
 class Rect{
 public:

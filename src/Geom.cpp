@@ -3,15 +3,23 @@
 #include "Rect.h"
 #include "Cost.h"
 #include <iostream>
+#include "math.h"
 
 using namespace std;
 
 //--------------constructor------------------------------------
-Geom::Geom(double c1, double c2, double r, double t, double m_ipen){ // start geom
+Geom::Geom(double c1, double c2, double r, double t, Cost cst){ // start geom
   label_t = t;
   rect_t = Rect(c1-r, c2-r, c1+r, c2+r);
+  cost_t = cst;
+}
+
+Geom::Geom(double m_ipen, int t){
+  label_t = t;
+  rect_t = Rect();
   cost_t = Cost(m_ipen);
 }
+
 Geom::Geom(double lbl, Cost cst, Rect rct){
   label_t = lbl;
   rect_t = rct;

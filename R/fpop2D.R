@@ -29,8 +29,8 @@ data_gen2D <- function(n, changepoints, means1, means2, noise = 1){
   data <- matrix(0,2,n)
   InttT<- diff(c(0,changepoints))
   # rnorm(mu,noise) = mu + rnorm(0,noise)
-  data[1,] <- rep(means1, InttT) + rnorm(n, 0, noise1)
-  data[2,] <- rep(means2, InttT) + rnorm(n, 0, noise2)
+  data[1,] <- rep(means1, InttT) + rnorm(n, 0, noise)
+  data[2,] <- rep(means2, InttT) + rnorm(n, 0, noise)
   return(data)
 }
 

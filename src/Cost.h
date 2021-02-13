@@ -15,7 +15,7 @@ public:
   //--------------constructor------------------------------------
   Cost();
   Cost(double mi_1pen); // for begin
-  Cost (unsigned int i, unsigned int t, std::vector<std::vector< double >> vectS, double mi_1pen);
+  Cost(unsigned int i, unsigned int t, double* si_1, double* st, double mi_1pen);
   
   //--------------accessory------------------------------------ 
   unsigned int get_coef() const;
@@ -28,7 +28,6 @@ public:
 
   //--------------value_cost------------------------------------
   double get_min();                          // q_it is a paraboloid => min{q_it} = coef_Var + mi_1_p
-  double value_cost(double a1, double a2);   //q_it(a1, a2) 
  
 private:
   unsigned int coef;    //(t - i + 1)

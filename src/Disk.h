@@ -1,7 +1,7 @@
 #ifndef DISK_H
 #define DISK_H
 
-#include < math.h >
+
 
 class Disk{
 public:

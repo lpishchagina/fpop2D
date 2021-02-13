@@ -2,7 +2,6 @@
 #define GEOM_H
 
 #include <iostream>
-#include <math.h>
 #include <vector>
 
 #include "Disk.h"
@@ -13,7 +12,8 @@ class Geom{
 public:
   //--------------constructor------------------------------------
   Geom(){};
-  Geom(double c1, double c2, double r, double t, double m_ipen);
+  Geom(double c1, double c2, double r, double t, Cost cst);
+  Geom(double m_ipen, int t);
   Geom(double lbl, Cost cst, Rect rct);
   //--------------accessory------------------------------------
   unsigned int get_label_t();
