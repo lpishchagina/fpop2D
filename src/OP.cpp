@@ -57,7 +57,6 @@ void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type
   n = y1.size();
   sy12 = vect_sy12(y1, y2);            //preprocessing
   double** s = get_sy12();
-  changepoints.push_back(-1);
   m.push_back(0);
   m.push_back(penalty);                 // "globalCost" for the moment t  = 0, t = 0:n-1
   std::list<Geom> ::iterator it_list;  // itterator for list of geom "list_geom"
@@ -67,28 +66,13 @@ void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type
   std:: vector <double> mus1;
   std:: vector <double> mus2;
   
-  Rcpp::Rcout << "Salut!" << std::endl; 
   //FPOP//  
   for (unsigned int t = 0 ; t < n ; t++){
     
     // initialisation of new geom:label_t = t, rect_t  = "square" Dtt 
     geom_activ = Geom(y1[t], y2[t], sqrt(m[t+1] - m[t]), t);
     list_geom.push_front(geom_activ);         //add to the list of geom "list_geom"
-    Rcpp::Rcout << "add new geom D"<< std::endl; 
     cost_activ = Cost(t, t, s[t], s[t+1], m[t]);
-    
-    Rcpp::Rcout << "____________________Dtt______________________________" << std::endl; 
-    Rcpp::Rcout <<  t << std::endl;
-    
-    Rcpp::Rcout << "coef" << std::endl; 
-    Rcpp::Rcout <<  cost_activ.get_coef() << std::endl; 
-    Rcpp::Rcout << "coef_Var" << std::endl; 
-    Rcpp::Rcout <<  cost_activ.get_coef_Var() << std::endl; 
-    Rcpp::Rcout << "mu1" << std::endl; 
-    Rcpp::Rcout <<  cost_activ.get_mu1()<< std::endl; 
-    Rcpp::Rcout << "mu2" << std::endl; 
-    Rcpp::Rcout << cost_activ.get_mu2()<< std::endl; 
-    Rcpp::Rcout << "____________________end Dtt______________________________" << std::endl;
     
     it_list = list_geom.begin();
     geom_activ = *it_list;
@@ -98,37 +82,16 @@ void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type
     double mean1 = cost_activ.get_mu1(); // means for interval (i,t)
     double mean2 = cost_activ.get_mu2();
     ++ it_list;
-    Rcpp::Rcout << "__________________________________________________" << std::endl;
-    Rcpp::Rcout << "min+penalty for tt" << std::endl; 
-    Rcpp::Rcout << min_val_cost+penalty<< std::endl; 
-    Rcpp::Rcout << "__________________________________________________" << std::endl;
     
-    //first run: search m_new_p
+    //first run: search m[t+2]
     while (it_list != list_geom.end()){
       geom_activ = *it_list;
       unsigned int lbl = geom_activ.get_label_t();
       cost_activ = Cost(lbl, t, s[lbl], s[t+1], m[lbl]);// add point y(t) to the previous  geoms
-      Rcpp::Rcout << "____________________parameters cost_activ ______________________________" << std::endl; 
-      Rcpp::Rcout << "i" << std::endl; 
-      Rcpp::Rcout <<  geom_activ.get_label_t() << std::endl; 
-      Rcpp::Rcout << "t" << std::endl; 
-      Rcpp::Rcout << t << std::endl;
-      Rcpp::Rcout << "coef" << std::endl; 
-      Rcpp::Rcout <<  cost_activ.get_coef() << std::endl; 
-      Rcpp::Rcout << "coef_Var" << std::endl; 
-      Rcpp::Rcout <<  cost_activ.get_coef_Var() << std::endl; 
-      Rcpp::Rcout << "mu1" << std::endl; 
-      Rcpp::Rcout <<  cost_activ.get_mu1()<< std::endl; 
-      Rcpp::Rcout << "mu2" << std::endl; 
-      Rcpp::Rcout << cost_activ.get_mu2()<< std::endl; 
-      Rcpp::Rcout <<  cost_activ.get_mu1()<< std::endl; 
-      Rcpp::Rcout << "min+penalty" << std::endl; 
-      Rcpp::Rcout << cost_activ.get_min()+penalty<< std::endl; 
-      Rcpp::Rcout << "__________________________________________________" << std::endl;
-      
+    
       if (min_val_cost > cost_activ.get_min()){
         i = geom_activ.get_label_t();
-        min_val_cost = cost_activ.get_min();//error!!!!
+        min_val_cost = cost_activ.get_min();
         mean1 = cost_activ.get_mu1();
         mean2 = cost_activ.get_mu2();
       }
@@ -136,13 +99,7 @@ void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type
     }
     
     m.push_back(min_val_cost + penalty);
-    
-    Rcpp::Rcout << "________________________new m__________________________" << std::endl;
-    Rcpp::Rcout << "m " << std::endl; 
-    Rcpp::Rcout << m[t+2]<< std::endl;
-    Rcpp::Rcout << "msize m " << std::endl;
-    Rcpp::Rcout << m.size()<< std::endl;
-    Rcpp::Rcout << "__________________________________________________" << std::endl;
+
     last_chpts.push_back(i);                    //best last chpt for t
     mus1.push_back(mean1);                    //add means for (i,t)
     mus2.push_back(mean2);
@@ -161,6 +118,7 @@ void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type
         
         geom_activ = *it_list;
         unsigned int lbl = geom_activ.get_label_t();
+        
         cost_activ = Cost(lbl, t, s[lbl], s[t+1], m[lbl+1]);
         
         // find radius
@@ -169,7 +127,7 @@ void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type
         disk_new = Disk(cost_activ.get_mu1(), cost_activ.get_mu2(), r_new);
         //intersection result
         rect_new = geom_activ.intersection(geom_activ.get_rect_t(), disk_new);
-        geom_update = Geom(lbl,rect_new);
+        geom_update = Geom(i,rect_new);
         //delete previous geom
         it_list = list_geom.erase(it_list);
         //if update geom isn't empty, add to the list
@@ -180,27 +138,18 @@ void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type
       }
     }
   }
-//forme result vectors
 
+  //forme result vectors
   globalCost = m[n+2];
-  int chpt_tmp = n-1;
-  while (chpt_tmp > -1){
-    changepoints.push_back(chpt_tmp+1);
-    chpt_tmp = last_chpts[chpt_tmp];
-    means1.push_back( mus1[chpt_tmp]);
-    means2.push_back(mus2[chpt_tmp]);
+  int chp = n-1;
+  while (chp > 0){
+    changepoints.push_back(chp + 1);
+    means1.push_back( mus1[chp]);
+    means2.push_back( mus2[chp]);
+    chp = last_chpts[chp]-1;
   }
- reverse(changepoints.begin(), changepoints.end());
- reverse(means1.begin(), means1.end());
- reverse(means2.begin(), means2.end());
- 
-
-Rcpp::Rcout << "msize m " << std::endl;
-  Rcpp::Rcout << m.size()<< std::endl;
-  Rcpp::Rcout << "msize last_chpts " << std::endl;
-  Rcpp::Rcout << last_chpts.size()<< std::endl;
-  Rcpp::Rcout << "mus1 " << std::endl;
-  Rcpp::Rcout << mus1.size()<< std::endl;
-
-
+  
+  reverse(changepoints.begin(), changepoints.end());
+  reverse(means1.begin(), means1.end());
+  reverse(means2.begin(), means2.end());
 }
