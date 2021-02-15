@@ -14,21 +14,18 @@ class Cost{
 public:
   //--------------constructor------------------------------------
   Cost();
-  Cost(double mi_1pen); // for begin
+  Cost(double mi_1pen); // initialisation empty cost
   Cost(unsigned int i, unsigned int t, double* si_1, double* st, double mi_1pen);
-  
   //--------------accessory------------------------------------ 
   unsigned int get_coef() const;
   double get_coef_Var() const;
   double get_mi_1_p() const;
   double get_mu1();
   double get_mu2();
+  double get_min();                           // q_it is a paraboloid => min{q_it} = coef_Var + mi_1_p
   //--------------preprocessing------------------------------------
   std::vector<std::vector<double>> vect_sy12(std::vector<double>& y1, std::vector<double>& y2); //sum y1,y2, y1^2, y2^2
 
-  //--------------value_cost------------------------------------
-  double get_min();                          // q_it is a paraboloid => min{q_it} = coef_Var + mi_1_p
- 
 private:
   unsigned int coef;    //(t - i + 1)
   double coef_Var;      //coef * (Var(y1_it) + Var(y2_it))

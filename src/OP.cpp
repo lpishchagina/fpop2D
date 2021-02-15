@@ -29,7 +29,7 @@ OP::~OP(){
   sy12 = NULL;
 }
 //--------------accessory------------------------------------
-std::vector< int > OP::get_last_chpts() const {return last_chpts;}
+std::vector< int > OP::get_changepoints() const {return changepoints;}
 std::vector< double > OP::get_means1() const{return means1;}
 std::vector< double > OP::get_means2() const{return means2;}
 double OP::get_globalCost() const {return globalCost;}
@@ -51,87 +51,156 @@ double** OP::vect_sy12(std::vector<double>& y1, std::vector<double>& y2){
   }
   return(sy12);
 }
-//--------------algoFPOP------------------------------------
+
+//--------------algoFPOP----------------------------------
 void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type){
-  
   n = y1.size();
-  sy12 = vect_sy12(y1, y2);
+  sy12 = vect_sy12(y1, y2);            //preprocessing
   double** s = get_sy12();
-  double m_new = 0;   // globalCost for the moment t 
-  double m_min;       // min cost
-  unsigned int label;
-  Cost cost_new;
-  Geom geom_new;
+  changepoints.push_back(-1);
+  m.push_back(0);
+  m.push_back(penalty);                 // "globalCost" for the moment t  = 0, t = 0:n-1
+  std::list<Geom> ::iterator it_list;  // itterator for list of geom "list_geom"
+  Geom geom_activ;
+  Cost cost_activ;
   
-  std::list <Geom> list_geom; // list of geom,  geom has 3 elements: label_t, rect_t, cost_t
-  std::list<Geom> ::iterator it_list;
+  std:: vector <double> mus1;
+  std:: vector <double> mus2;
   
-  double mean1;	// means for segment 
-  double mean2;
- 
-  Disk disk_new;  //pruning "intersection"
-  Rect rect_new;
-  double r_new;
-  Geom geom_update;
-  
-  //algoFPOP 
-  for(unsigned int t = 1; t < n + 1; t++){                        //!!!!!!!!!!!!
-    cost_new = Cost(1, t, s[0], s[t], -penalty);      // attention: (m_new + penalty)- true or false?
-    geom_new = Geom(cost_new.get_mu1(), cost_new.get_mu2(), sqrt(m_new + penalty), t, cost_new);// // initialization of new geom??????
-    it_list = list_geom.begin();
-    list_geom.push_front(geom_new);
-    it_list = list_geom.begin();
-    ++it_list;//  pass: 1 element, it is new geom
+  Rcpp::Rcout << "Salut!" << std::endl; 
+  //FPOP//  
+  for (unsigned int t = 0 ; t < n ; t++){
     
-    label = geom_new.get_label_t();
-    m_min = geom_new.get_cost_t().get_min();
-    mean1 = geom_new.get_cost_t().get_mu1();
-    mean2 = geom_new.get_cost_t().get_mu2();
+    // initialisation of new geom:label_t = t, rect_t  = "square" Dtt 
+    geom_activ = Geom(y1[t], y2[t], sqrt(m[t+1] - m[t]), t);
+    list_geom.push_front(geom_activ);         //add to the list of geom "list_geom"
+    Rcpp::Rcout << "add new geom D"<< std::endl; 
+    cost_activ = Cost(t, t, s[t], s[t+1], m[t]);
     
-    //first run: search m_min
-    while(it_list != list_geom.end()){
-      geom_new = *it_list;
-      cost_new = Cost(geom_new.get_label_t(), t, s[geom_new.get_label_t()-1], s[t], geom_new.get_cost_t().get_mi_1_p());//
-      if (cost_new.get_min() < m_min){
-        label = geom_new.get_label_t();
-        m_min = cost_new.get_min();
-        mean1 = cost_new.get_mu1();
-        mean2 = cost_new.get_mu2();
+    Rcpp::Rcout << "____________________Dtt______________________________" << std::endl; 
+    Rcpp::Rcout <<  t << std::endl;
+    
+    Rcpp::Rcout << "coef" << std::endl; 
+    Rcpp::Rcout <<  cost_activ.get_coef() << std::endl; 
+    Rcpp::Rcout << "coef_Var" << std::endl; 
+    Rcpp::Rcout <<  cost_activ.get_coef_Var() << std::endl; 
+    Rcpp::Rcout << "mu1" << std::endl; 
+    Rcpp::Rcout <<  cost_activ.get_mu1()<< std::endl; 
+    Rcpp::Rcout << "mu2" << std::endl; 
+    Rcpp::Rcout << cost_activ.get_mu2()<< std::endl; 
+    Rcpp::Rcout << "____________________end Dtt______________________________" << std::endl;
+    
+    it_list = list_geom.begin();
+    geom_activ = *it_list;
+    
+    unsigned int i = geom_activ.get_label_t();
+    double min_val_cost = cost_activ.get_min();       // q_it is a paraboloid => min{q_it} = coef_Var + mi_1_p
+    double mean1 = cost_activ.get_mu1(); // means for interval (i,t)
+    double mean2 = cost_activ.get_mu2();
+    ++ it_list;
+    Rcpp::Rcout << "__________________________________________________" << std::endl;
+    Rcpp::Rcout << "min+penalty for tt" << std::endl; 
+    Rcpp::Rcout << min_val_cost+penalty<< std::endl; 
+    Rcpp::Rcout << "__________________________________________________" << std::endl;
+    
+    //first run: search m_new_p
+    while (it_list != list_geom.end()){
+      geom_activ = *it_list;
+      unsigned int lbl = geom_activ.get_label_t();
+      cost_activ = Cost(lbl, t, s[lbl], s[t+1], m[lbl]);// add point y(t) to the previous  geoms
+      Rcpp::Rcout << "____________________parameters cost_activ ______________________________" << std::endl; 
+      Rcpp::Rcout << "i" << std::endl; 
+      Rcpp::Rcout <<  geom_activ.get_label_t() << std::endl; 
+      Rcpp::Rcout << "t" << std::endl; 
+      Rcpp::Rcout << t << std::endl;
+      Rcpp::Rcout << "coef" << std::endl; 
+      Rcpp::Rcout <<  cost_activ.get_coef() << std::endl; 
+      Rcpp::Rcout << "coef_Var" << std::endl; 
+      Rcpp::Rcout <<  cost_activ.get_coef_Var() << std::endl; 
+      Rcpp::Rcout << "mu1" << std::endl; 
+      Rcpp::Rcout <<  cost_activ.get_mu1()<< std::endl; 
+      Rcpp::Rcout << "mu2" << std::endl; 
+      Rcpp::Rcout << cost_activ.get_mu2()<< std::endl; 
+      Rcpp::Rcout <<  cost_activ.get_mu1()<< std::endl; 
+      Rcpp::Rcout << "min+penalty" << std::endl; 
+      Rcpp::Rcout << cost_activ.get_min()+penalty<< std::endl; 
+      Rcpp::Rcout << "__________________________________________________" << std::endl;
+      
+      if (min_val_cost > cost_activ.get_min()){
+        i = geom_activ.get_label_t();
+        min_val_cost = cost_activ.get_min();//error!!!!
+        mean1 = cost_activ.get_mu1();
+        mean2 = cost_activ.get_mu2();
       }
-      ++it_list;
+      ++ it_list;
     }
-    m_new = m_min + penalty; // globalCost for the moment t
-    // fill result vectors
-    last_chpts.push_back(label); //best last chpt  for the moment t
-    means1.push_back(mean1);// means for segment 
-    means2.push_back(mean2);
+    
+    m.push_back(min_val_cost + penalty);
+    
+    Rcpp::Rcout << "________________________new m__________________________" << std::endl;
+    Rcpp::Rcout << "m " << std::endl; 
+    Rcpp::Rcout << m[t+2]<< std::endl;
+    Rcpp::Rcout << "msize m " << std::endl;
+    Rcpp::Rcout << m.size()<< std::endl;
+    Rcpp::Rcout << "__________________________________________________" << std::endl;
+    last_chpts.push_back(i);                    //best last chpt for t
+    mus1.push_back(mean1);                    //add means for (i,t)
+    mus2.push_back(mean2);
     
     //second run: pruning 
     //type = 1 pruning "intersection"
     if (type == 1){
       it_list = list_geom.begin();
-      ++it_list; //  pass: 1 element, it is new geom
-      while(it_list != list_geom.end()){
-        geom_new = *it_list;
-        r_new = sqrt((m_new - geom_new.get_cost_t().get_mi_1_p())/geom_new.get_cost_t().get_coef() - geom_new.get_cost_t().get_coef_Var());
-        disk_new = Disk(geom_new.get_cost_t().get_mu1(), geom_new.get_cost_t().get_mu2(), r_new);
-        //intersection result
-        geom_update = Geom(geom_new.get_label_t(), geom_new.get_cost_t(), geom_new.intersection(geom_new.get_rect_t(), disk_new));
+      ++it_list; //  pass: 1 element, it is new geom Dtt
+      
+      while (it_list != list_geom.end()){
+        double r_new;
+        Rect rect_new;
+        Disk disk_new;
+        Geom geom_update;
         
-        if (geom_update.empty_set(geom_update.get_rect_t())){ 
-          unsigned int i = geom_update.get_label_t();
-          
-          last_chpts.erase(last_chpts.begin() + i - 1);// index?
-          means1.erase(means1.begin() + i - 1);
-          means2.erase(means2.begin() + i - 1);
-          it_list = list_geom.erase(it_list);// delete previous geom
+        geom_activ = *it_list;
+        unsigned int lbl = geom_activ.get_label_t();
+        cost_activ = Cost(lbl, t, s[lbl], s[t+1], m[lbl+1]);
+        
+        // find radius
+        r_new = sqrt((m[t+2] - cost_activ.get_mi_1_p())/cost_activ.get_coef() - cost_activ.get_coef_Var());
+        //build new disk
+        disk_new = Disk(cost_activ.get_mu1(), cost_activ.get_mu2(), r_new);
+        //intersection result
+        rect_new = geom_activ.intersection(geom_activ.get_rect_t(), disk_new);
+        geom_update = Geom(lbl,rect_new);
+        //delete previous geom
+        it_list = list_geom.erase(it_list);
+        //if update geom isn't empty, add to the list
+        if (!geom_update.empty_set(geom_update.get_rect_t())){ 
+          list_geom.insert(it_list, geom_update);
+          ++it_list;	
         } 
-         else{
-           it_list = list_geom.erase(it_list);
-           list_geom.insert(it_list,geom_update);
-           ++it_list;	
-         } 
-      }	
-    } 
+      }
+    }
   }
+//forme result vectors
+
+  globalCost = m[n+2];
+  int chpt_tmp = n-1;
+  while (chpt_tmp > -1){
+    changepoints.push_back(chpt_tmp+1);
+    chpt_tmp = last_chpts[chpt_tmp];
+    means1.push_back( mus1[chpt_tmp]);
+    means2.push_back(mus2[chpt_tmp]);
+  }
+ reverse(changepoints.begin(), changepoints.end());
+ reverse(means1.begin(), means1.end());
+ reverse(means2.begin(), means2.end());
+ 
+
+Rcpp::Rcout << "msize m " << std::endl;
+  Rcpp::Rcout << m.size()<< std::endl;
+  Rcpp::Rcout << "msize last_chpts " << std::endl;
+  Rcpp::Rcout << last_chpts.size()<< std::endl;
+  Rcpp::Rcout << "mus1 " << std::endl;
+  Rcpp::Rcout << mus1.size()<< std::endl;
+
+
 }

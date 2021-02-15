@@ -3,32 +3,27 @@
 #include "Rect.h"
 #include "Cost.h"
 #include <iostream>
-#include "math.h"
-
+#include <math.h>
 using namespace std;
 
 //--------------constructor------------------------------------
-Geom::Geom(double c1, double c2, double r, double t, Cost cst){ // start geom
-  label_t = t;
-  rect_t = Rect(c1-r, c2-r, c1+r, c2+r);
-  cost_t = cst;
-}
-
-Geom::Geom(double m_ipen, int t){
+Geom::Geom(unsigned  t){
   label_t = t;
   rect_t = Rect();
-  cost_t = Cost(m_ipen);
 }
 
-Geom::Geom(double lbl, Cost cst, Rect rct){
-  label_t = lbl;
+Geom::Geom( unsigned int t, Rect rct){
+  label_t = t;
   rect_t = rct;
-  cost_t = cst;
+}
+
+Geom::Geom(double c1, double c2, double r, unsigned int  t){ // start geom
+  label_t = t;
+  rect_t = Rect(c1-r, c2-r, c1+r, c2+r);
 }
 //--------------accessory------------------------------------
 unsigned int Geom::get_label_t(){return label_t;}
 Rect Geom::get_rect_t(){return rect_t;}
-Cost Geom::get_cost_t(){return cost_t;}
 //--------------min max------------------------------------
 double Geom::min_ab(double a, double b){
  if (a < b) {return a;} else {return b;}
@@ -178,3 +173,4 @@ Rect Geom::difference(Rect rect, Disk disk){// difference approximation
   Rect rect_approx = Rect(x0, y0, x1, y1); // difference approximation
   return rect_approx;
 }
+//_______________________________________________________________________________________________________________

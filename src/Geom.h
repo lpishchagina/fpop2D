@@ -12,13 +12,12 @@ class Geom{
 public:
   //--------------constructor------------------------------------
   Geom(){};
-  Geom(double c1, double c2, double r, double t, Cost cst);
-  Geom(double m_ipen, int t);
-  Geom(double lbl, Cost cst, Rect rct);
+  Geom(unsigned int t);
+  Geom(double c1, double c2, double r, unsigned int t);
+  Geom(unsigned int  t, Rect rct);
   //--------------accessory------------------------------------
   unsigned int get_label_t();
   Rect get_rect_t();
-  Cost get_cost_t();
   //--------------min max------------------------------------
   double min_ab(double a, double b);
   double max_ab(double a, double b);

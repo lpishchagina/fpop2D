@@ -36,14 +36,14 @@ List FPOP2D(std::vector<double> data1, std::vector<double> data2, double penalty
   if(type < 1 || type > 2)
   {throw std::range_error("type must be one of: 1 or 2");}
   //----------------------------------------------------------------------------
+ 
   OP Y = OP(data1,data2, penalty);
+  
   if(type == 1) {Y.algoFPOP(data1, data2, type);}     //FPOP algorithm: type of pruning  = intersection
 //  if(type == 2) {Y.algoFPOP(data1, data2, type);}   //FPOP algorithm: type of pruning = intersection \ difference
-  
-//  Y.backtracking(Y.get_n());                           //algorithm results 
-  
+
   List res;
-  res["changepoints"] = Y.get_last_chpts();
+  res["changepoints"] = Y.get_changepoints();
   res["means1"] = Y.get_means1();
   res["means2"] = Y.get_means2();
   res["globalCost"] = Y.get_globalCost();
