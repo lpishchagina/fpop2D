@@ -12,36 +12,35 @@
 #include <iterator>
 #include "Rcpp.h"
 
+//##############################################################################//
+//###############################Class OP#######################################//
 class OP{
 public:
-  //--------------constructor------------------------------------
+//------------------------------constructor-------------------------------------//
   OP(){};
   OP(std::vector<double>& y1, std::vector<double>& y2, double beta);
+//---------------------------------destructor-----------------------------------//
   ~OP();
-  //--------------accessory------------------------------------
-  std::vector< int > get_changepoints() const;
-  std::vector< double > get_means1() const;
-  std::vector< double > get_means2() const;
-  std::vector <double> m;                       // vector of optimal cost+penalty
+//---------------------------------accessory------------------------------------//
+  std::vector<unsigned int> get_changepoints() const;
+  std::vector<double> get_means1() const;
+  std::vector<double> get_means2() const;
   double get_globalCost() const;
   unsigned int get_n() const;
   double** get_sy12();
-  //--------------preprocessing------------------------------------
+//------------------------------vect_sy12---------------------------------------//
   double** vect_sy12(std::vector<double>& y1, std::vector<double>& y2);
-  //--------------algoFPOP------------------------------------
-  void algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type);
+//-------------------------------algoFPOP---------------------------------------//
+  void algoFPOP(std::vector<double>& y1, std::vector<double>& y2, int type);
   
 private:
-  double penalty;
-  unsigned int n;
-  double m_new;   // for global cost
-  double** sy12;  // vector sum y1,y2, y1^2, y2^2
-  std::vector< double > means1; 
-  std::vector< double > means2;
-  double globalCost;
-  std::vector< int > last_chpts;
-  std::vector< int > changepoints;
-  std::list<Geom> list_geom; //list of geom
+  double penalty;                                       //value of penalty 
+  unsigned int n;                                       // data length
+  double** sy12;                                        // vector sum y1,y2, y1^2, y2^2
+  std::vector<unsigned int> changepoints;               // changepoints vector 
+  std::vector<double> means1;                           // means vector for y1
+  std::vector<double> means2;                           // means vector for y2        
+  double globalCost;                                    // value of global cost 
 };
-
+//#############################End Class OP#####################################//
 #endif //OP_H

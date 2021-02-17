@@ -8,28 +8,24 @@
 #include "Rect.h"
 #include "Cost.h"
 
+//##############################################################################//
+//###############################Class Geom#####################################//
 class Geom{
 public:
-  //--------------constructor------------------------------------
+//------------------------------constructor-------------------------------------//
   Geom(){};
   Geom(unsigned int t);
   Geom(double c1, double c2, double r, unsigned int t);
-  Geom(unsigned int  t, Rect rct);
-  //--------------accessory------------------------------------
+  //-----------------difference and intersection--------------------------------//
   unsigned int get_label_t();
   Rect get_rect_t();
-  //--------------min max------------------------------------
-  double min_ab(double a, double b);
-  double max_ab(double a, double b);
-  //--------------set------------------------------------
-  bool empty_set(Rect R);   //checking for emptiness of an approximated set 
-  Rect intersection(Rect rect, Disk disk); // intersection approximation
-  Rect difference(Rect rect, Disk disk); // difference approximation
-  //-----------------------------------------------------
+  //-----------------empty, difference and intersection-------------------------// 
+  bool empty_set(Rect R);         //checking for emptiness of an approximated set 
+  void intersection_disk(Disk disk);                //intersection approximation
+  void difference_disk(Disk disk);                    //difference approximation
 private:
-  unsigned int label_t;// time moment 
-  Cost cost_t;
-  Rect rect_t;
+  unsigned int label_t;                                 //time moment 
+  Rect rect_t;                                          //approx rectangle
 };
-
+//#############################End Class Geom###################################//
 #endif //GEOM_H
