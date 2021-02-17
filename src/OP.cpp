@@ -70,6 +70,7 @@ void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type
   
   //-------------------------Algorithm------------------------------------------ 
   for (unsigned int t = 0; t < n ; t++){
+    Rcpp::Rcout << "create new Dtt" << std::endl;
     geom_activ = Geom(t); 
     list_geom.push_back(geom_activ);
     double min_val = INFINITY;                      //min value of cost
@@ -132,26 +133,39 @@ void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type
         Rcpp::Rcout << r2 << std::endl;
         ////////////////////////////////
         
-        /*
+        
         if (r2 > 0){
           r_new = sqrt(r2);
           disk_new = Disk(cost_activ.get_mu1(), cost_activ.get_mu2(), r_new);
+          
+          Rcpp::Rcout << "create disk" << std::endl;
+          Rcpp::Rcout << disk_new.get_radius() << std::endl;
+          
           geom_activ.intersection_disk(disk_new);
+          
+          Rcpp::Rcout << "intersection" << std::endl;
+          Rcpp::Rcout << geom_activ.empty_set(geom_activ.get_rect_t()) << std::endl;
           if (geom_activ.empty_set(geom_activ.get_rect_t())){
+            Rcpp::Rcout << "delete geom" << std::endl;
+            Rcpp::Rcout << geom_activ.get_label_t() << std::endl;
            it_list = list_geom.erase(it_list);
            --it_list;
+           Rcpp::Rcout << "delete !!!!" << std::endl;
           }
         }
-        
-         */
+        Rcpp::Rcout << "itteration while " << std::endl;
+    
         ++it_list;
       }// while (it_list != list_geom.end())
     } //if (type == 1)  
-  /*  
-    it_list = list_geom.end();
+    
+    //it_list = list_geom.end();
+    Rcpp::Rcout << "update Dtt " << std::endl;
     geom_activ = Geom(y1[t],y2[t], sqrt(m[t + 1] - m[t]), t); // update Dtt
-    it_list = list_geom.erase(it_list);
-    list_geom.insert(it_list, geom_activ);*/
+    list_geom.push_back(geom_activ);
+   // it_list = list_geom.erase(it_list);
+   // list_geom.insert(it_list, geom_activ);
+    Rcpp::Rcout << "update Dtt end " << std::endl;
   }//for (unsigned int t = 0; t < n ; t++)
      
   //-----------------------result vectors---------------------------------------
