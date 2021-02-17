@@ -137,11 +137,11 @@ void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type
           r_new = sqrt(r2);
           disk_new = Disk(cost_activ.get_mu1(), cost_activ.get_mu2(), r_new);
           geom_activ.intersection_disk(disk_new);
+          if (geom_activ.empty_set(geom_activ.get_rect_t())){
+           it_list = list_geom.erase(it_list);
+           --it_list;
+          }
         }
-        if (geom_activ.empty_set(geom_activ.get_rect_t())){
-         it_list = list_geom.erase(it_list);
-         --it_list;
-         }
         
          */
         ++it_list;
