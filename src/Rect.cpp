@@ -5,10 +5,10 @@
 
 using namespace std;
 
-//##############################constructor#####################################//
+//############################## constructor #####################################//
 Rect::Rect(){
-  rectx0 = INFINITY;    
-  recty0 = INFINITY;
+  rectx0 = -INFINITY;    
+  recty0 = -INFINITY;
   rectx1 = INFINITY;
   recty1 = INFINITY;
 }
@@ -19,17 +19,24 @@ Rect::Rect(double x0, double y0, double x1, double y1){
   recty1 = y1;
 }
 
-//##############################accessory#######################################//
+Rect::Rect(double c1, double c2, double r){
+  rectx0 = c1 - r;    
+  recty0 = c2 - r;
+  rectx1 = c1 + r;
+  recty1 = c2 + r;
+}
+
+//############################## accessory #######################################//
 double Rect::get_rectx0(){return rectx0;}
 double Rect::get_recty0(){return recty0;}
 double Rect::get_rectx1(){return rectx1;}
 double Rect::get_recty1(){return recty1;}
 
-//##############################min max#########################################//
+//############################## min max #########################################//
 double Rect::min_ab(double a, double b){if (a < b) {return a;} else {return b;}}
 double Rect::max_ab(double a, double b){if (a > b) {return a;} else {return b;}}
 
-//##############################intersection####################################//  
+//############################## intersection ####################################//  
 void Rect::intersection(Disk disk){
   double r = disk.get_radius();        
   double c1 = disk.get_center1();                       //parameters of the disk
@@ -40,7 +47,7 @@ void Rect::intersection(Disk disk){
   //----------------------approximation-----------------------------------------
   
   //--------------------horizontal direction: boundary y0, y1-------------------
-  if (c1 >= rectx0 && c1 <= rectx1){         
+  if (c1 >= rectx0 && c1 <= rectx1){ 
     recty0 = max_ab(recty0, c2 - r);          //boundary point is inside [x0,x1]
     recty1 = min_ab(recty1, c2 + r);
     fl = false;
@@ -95,7 +102,7 @@ void Rect::intersection(Disk disk){
       fl = false;
     }
   }
-  if (fl) {rectx0 = rectx1;}  //empty set
+  if (fl) {rectx0 = rectx1;Rcpp::Rcout << "not update" << std::endl;}  //empty set
 }
 
 //##############################difference######################################//
@@ -154,7 +161,7 @@ void Rect::difference(Disk disk){
     rectx1 = min_ab(rectx1, max_ab(b1, t1));          //x1 = min{x1, max{b1, t1}}
   }
 }
-//##############################End#############################################//
+//############################## End #############################################//
 
 
 

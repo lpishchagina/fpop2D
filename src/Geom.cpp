@@ -6,7 +6,10 @@
 #include <math.h>
 using namespace std;
 
-//##############################constructor#####################################//
+#include <Rcpp.h>
+using namespace Rcpp;
+
+//############################## constructor #####################################//
 Geom::Geom(unsigned  int t){
   label_t = t;
   rect_t = Rect();
@@ -16,11 +19,11 @@ Geom::Geom(double c1, double c2, double r, unsigned int  t){ // start geom
   rect_t = Rect(c1-r, c2-r, c1+r, c2+r);
 }
 
-//##############################accessory#######################################//
+//############################## accessory #######################################//
 unsigned int Geom::get_label_t(){return label_t;}
 Rect Geom::get_rect_t(){return rect_t;}
 
-//##############################empty_set#######################################//
+//############################## empty_se t#######################################//
 bool Geom::empty_set(Rect rect){        //checking for emptiness of an approximated set 
   double x0 = rect.get_rectx0();        //parameters of the rectangle 
   double x1 = rect.get_rectx1();
@@ -29,8 +32,9 @@ bool Geom::empty_set(Rect rect){        //checking for emptiness of an approxima
   if (x0 >= x1 || y0 >= y1){return true;} else {return false;} 
 }
 
-//###################intersection_disk and difference_disk######################//
-void Geom::intersection_disk(Disk disk){rect_t.intersection(disk);}
-void Geom::difference_disk(Disk disk){rect_t.difference(disk);}
+//############ intersection-rect_disk and difference_rect_dis k###################//
+void Geom::intersection_rect_disk(Disk disk){rect_t.intersection(disk);}
 
-//###############################End############################################//
+void Geom::difference_rect_disk(Disk disk){rect_t.difference(disk);}
+
+//############################### End ############################################//

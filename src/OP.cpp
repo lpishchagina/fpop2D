@@ -12,7 +12,7 @@ using namespace std;
 #include <Rcpp.h>
 using namespace Rcpp;
 
-//##############################constructor#####################################//
+//############################## constructor #####################################//
 OP::OP(std::vector<double>& y1, std::vector<double>& y2, double beta){
   penalty = beta;
   n = y1.size();
@@ -20,22 +20,48 @@ OP::OP(std::vector<double>& y1, std::vector<double>& y2, double beta){
   for(unsigned int i = 0; i < n+1; i++) {sy12[i] = new double[4];}
 }
 
-//##############################destructor######################################//
+//############################## destructor ######################################//
 OP::~OP(){
   for(unsigned int i = 0; i < n+1; i++) {delete(sy12[i]);}
   delete [] sy12;
   sy12 = NULL;
 }
 
-//##############################accessory#######################################//
+//############################## accessory #######################################//
 std::vector< unsigned int > OP::get_changepoints() const {return changepoints;}
 std::vector< double > OP::get_means1() const{return means1;}
 std::vector< double > OP::get_means2() const{return means2;}
 double OP::get_globalCost() const {return globalCost;}
 unsigned int OP::get_n() const {return n;}
 double** OP::get_sy12() {return sy12;}
+Geom OP::get_geom_activ() const {return geom_activ;}
+std::list<Geom> ::iterator OP::get_it_list() const {return it_list;}
 
-//##############################vect_sy12#######################################//
+//############################## intersection_geom_disk ##########################//
+void OP::intersection_geom_disk(Disk disk){
+    geom_activ.intersection_rect_disk(disk);
+    
+    Rcpp::Rcout << "coord rect t in OP inret geom disk" << std::endl;
+    Rcpp::Rcout << geom_activ.get_rect_t().get_rectx0() << std::endl;
+    Rcpp::Rcout << geom_activ.get_rect_t().get_recty0() << std::endl;
+    Rcpp::Rcout << geom_activ.get_rect_t().get_rectx1() << std::endl;
+    Rcpp::Rcout << geom_activ.get_rect_t().get_recty1() << std::endl;
+    Rcpp::Rcout << "-------end coord rect t in OP inret geom disk------------" << std::endl;
+}
+
+//############################## difference_geom_disk ##########################//
+void OP::difference_geom_disk(Disk disk){
+  geom_activ.difference_rect_disk(disk);
+  
+  Rcpp::Rcout << "coord rect t in OP inret geom disk" << std::endl;
+  Rcpp::Rcout << geom_activ.get_rect_t().get_rectx0() << std::endl;
+  Rcpp::Rcout << geom_activ.get_rect_t().get_recty0() << std::endl;
+  Rcpp::Rcout << geom_activ.get_rect_t().get_rectx1() << std::endl;
+  Rcpp::Rcout << geom_activ.get_rect_t().get_recty1() << std::endl;
+  Rcpp::Rcout << "-------end coord rect t in OP inret geom disk------------" << std::endl;
+}
+
+//############################## vect_sy12 #######################################//
 double** OP::vect_sy12(std::vector<double>& y1, std::vector<double>& y2){
   unsigned int n = y1.size();
   sy12[0][0] = 0;
@@ -51,23 +77,16 @@ double** OP::vect_sy12(std::vector<double>& y1, std::vector<double>& y2){
   return(sy12);
 }
 
-//###############################algoFPOP#######################################//
-void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type){
+//############################### algoFPOP #######################################//
+void OP::algoFPOP(std::vector<double>& y1, std::vector<double>& y2, int type){
   //-------------------------preprocessing-------------------------------------
   n = y1.size();
   sy12 = vect_sy12(y1, y2);           
-  
   double* m = new double[n + 1];        // "globalCost" = m[n+1] - changepoints.size()*penalty 
   m[0] = 0;
   double** last_chpt_mean = new double*[3];         // vectors of best last changepoints, mean1 and mean2
   for(unsigned int i = 0; i < 3; i++) {last_chpt_mean[i] = new double[n];}
-  
-  std::list<Geom> list_geom;                        //list of geom
-  std::list<Geom> ::iterator it_list;               // iterator for list of geom 
- 
-  Geom geom_activ;
   Cost cost_activ;
-  
   //-------------------------Algorithm------------------------------------------ 
   for (unsigned int t = 0; t < n ; t++){
     Rcpp::Rcout << "create new Dtt" << std::endl;
@@ -91,80 +110,75 @@ void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type
       }
       ++it_list;
     }
-    
     last_chpt_mean[0][t] = lbl;       //last_chpt_mean[0] - vector of best last chpt
     last_chpt_mean[1][t] = mean1;     //last_chpt_mean[1] - vector of means (lbl,t) for y1
     last_chpt_mean[2][t] = mean2;     //last_chpt_mean[2] - vector of means (lbl,t) for y2
-    
     m[t + 1] = min_val + penalty;     // new min        
-   
-    
     //------------------Second run: pruning------------------------------------- 
     
     //------------------type = 1 pruning "intersection"-------------------------
     if (type == 1){
-      ////////////////////////////
-      Rcpp::Rcout << "geom_activ.get_label_t()" << std::endl;
+      ////////////////////////////check/////////////////////////////////////////
+      Rcpp::Rcout << "___________moment t________________________" << std::endl;
+      Rcpp::Rcout << t << std::endl;
       it_list = list_geom.begin();
+      
+      Rcpp::Rcout << "___________all rect_t for t________________________" << std::endl;
       while( it_list != list_geom.end() )
       {
         geom_activ = *it_list;
         Rcpp::Rcout << geom_activ.get_label_t() << std::endl;
+        Rcpp::Rcout << "coord rect t" << std::endl;
+        Rcpp::Rcout << geom_activ.get_rect_t().get_rectx0() << std::endl;
+        Rcpp::Rcout << geom_activ.get_rect_t().get_recty0() << std::endl;
+        Rcpp::Rcout << geom_activ.get_rect_t().get_rectx1() << std::endl;
+        Rcpp::Rcout << geom_activ.get_rect_t().get_recty1() << std::endl;
+        Rcpp::Rcout << "-------end coord rect t------------" << std::endl;
         ++it_list;
       }
-      ///////////////////////////
+      ////////////////////////////end check//////////////////////////////////////
       it_list = list_geom.begin();
-      
       while (it_list != list_geom.end()){
-        
-        double r_new;           //radius
         Disk disk_new;
-        
         geom_activ = *it_list;
         lbl = geom_activ.get_label_t();
-        
         cost_activ = Cost(lbl, t, sy12[lbl], sy12[t + 1], m[lbl]);
-        
-        // find radius
-        double r2 = (m[t + 1] - m[lbl] - cost_activ.get_coef_Var())/cost_activ.get_coef(); 
-        
-        //////////////////////////////////
-        Rcpp::Rcout << "r2" << std::endl;
-        Rcpp::Rcout << r2 << std::endl;
-        ////////////////////////////////
-        
-        
-        if (r2 >= 0){
-          r_new = sqrt(r2);
-          disk_new = Disk(cost_activ.get_mu1(), cost_activ.get_mu2(), r_new);
+        double r2 = (m[t + 1] - m[lbl] - cost_activ.get_coef_Var())/cost_activ.get_coef(); //find radius^2
+        if (r2 <= 0){it_list = list_geom.erase(it_list);}                 //PELT
+        else{                                                             //FPOP
+          disk_new = Disk(cost_activ.get_mu1(), cost_activ.get_mu2(), sqrt(r2));
+          Rcpp::Rcout << "______________r2 > 0________________________" << std::endl;
+          Rcpp::Rcout << "t" << std::endl;
+          Rcpp::Rcout << t << std::endl;
+          Rcpp::Rcout << "lbl" << std::endl;
+          Rcpp::Rcout << lbl << std::endl;
           
-          Rcpp::Rcout << "create disk" << std::endl;
-          Rcpp::Rcout << disk_new.get_radius() << std::endl;
-          Rcpp::Rcout << "intersection" << std::endl;
-          geom_activ.intersection_disk(disk_new);
+          Rcpp::Rcout << "__________intersection___________________" << std::endl;
+          Rcpp::Rcout << "coord rect t before" << std::endl;
+          Rcpp::Rcout << geom_activ.get_rect_t().get_rectx0() << std::endl;
+          Rcpp::Rcout << geom_activ.get_rect_t().get_recty0() << std::endl;
+          Rcpp::Rcout << geom_activ.get_rect_t().get_rectx1() << std::endl;
+          Rcpp::Rcout << geom_activ.get_rect_t().get_recty1() << std::endl;
+          Rcpp::Rcout << "-------end coord rect t before------------" << std::endl;
+          
+          intersection_geom_disk(disk_new);
+          it_list = list_geom.erase(it_list);
+          it_list = list_geom.insert(it_list, geom_activ);
+          
           Rcpp::Rcout << "res empty" << std::endl;
           Rcpp::Rcout << geom_activ.empty_set(geom_activ.get_rect_t()) << std::endl;
           if (geom_activ.empty_set(geom_activ.get_rect_t())){
             Rcpp::Rcout << "delete geom" << std::endl;
             Rcpp::Rcout << geom_activ.get_label_t() << std::endl;
            it_list = list_geom.erase(it_list);
-           --it_list;
            Rcpp::Rcout << "delete !!!!" << std::endl;
           }
         }
-        Rcpp::Rcout << "itteration while " << std::endl;
-    
+        Rcpp::Rcout << "end itteration while " << std::endl;
         ++it_list;
       }// while (it_list != list_geom.end())
-    } //if (type == 1)  
-    
-    //it_list = list_geom.end();
-    Rcpp::Rcout << "update Dtt " << std::endl;
-    if ((m[t + 1] - m[t]) > 0){
-      geom_activ = Geom(y1[t],y2[t], sqrt(m[t + 1] - m[t]), t); // update Dtt
-      list_geom.push_back(geom_activ);
-    }
-    Rcpp::Rcout << "update Dtt end " << std::endl;
+    } //if (type == 1) 
+    Rcpp::Rcout << "end itteration for " << std::endl;
   }//for (unsigned int t = 0; t < n ; t++)
      
   //-----------------------result vectors---------------------------------------
@@ -188,4 +202,4 @@ void OP::algoFPOP(std::vector< double >& y1, std::vector< double >& y2, int type
   last_chpt_mean = NULL;
 }
 
-//#############################End##############################################//
+//############################# End ##############################################//

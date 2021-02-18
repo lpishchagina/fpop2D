@@ -12,8 +12,8 @@
 #include <iterator>
 #include "Rcpp.h"
 
-//##############################################################################//
-//###############################Class OP#######################################//
+//################################################################################//
+//############################### Class OP #######################################//
 class OP{
 public:
 //------------------------------constructor-------------------------------------//
@@ -27,10 +27,20 @@ public:
   std::vector<double> get_means2() const;
   double get_globalCost() const;
   unsigned int get_n() const;
+  
+  Geom get_geom_activ() const;
+  std::list<Geom> ::iterator get_it_list() const;
   double** get_sy12();
+//--------------intersection_geom_disk and difference_geom_disk-----------------//  
+  void intersection_geom_disk(Disk disk);
+  void difference_geom_disk(Disk disk);
+  
 //------------------------------vect_sy12---------------------------------------//
   double** vect_sy12(std::vector<double>& y1, std::vector<double>& y2);
+
 //-------------------------------algoFPOP---------------------------------------//
+
+
   void algoFPOP(std::vector<double>& y1, std::vector<double>& y2, int type);
   
 private:
@@ -40,7 +50,10 @@ private:
   std::vector<unsigned int> changepoints;               // changepoints vector 
   std::vector<double> means1;                           // means vector for y1
   std::vector<double> means2;                           // means vector for y2        
-  double globalCost;                                    // value of global cost 
+  double globalCost;                                    // value of global cost
+  Geom geom_activ;
+  std::list<Geom> list_geom;                            //list of geom
+  std::list<Geom> ::iterator it_list;                   // iterator for list of geom 
 };
-//#############################End Class OP#####################################//
+//############################# End Class OP #####################################//
 #endif //OP_H
