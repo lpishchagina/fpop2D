@@ -186,28 +186,12 @@ void OP::algoFPOP(std::vector<double>& y1, std::vector<double>& y2, int type){
       double mean1;                                   //means for (lbl, t)
       double mean2; 
       unsigned int lbl;                               //best last position for t
-      
-
-      ////////////////////////////check////////////////////////////////////
-      Rcpp::Rcout << "___________3____________________" << std::endl;
-      Rcpp::Rcout << "___________list of active disks for t-1__________________" << std::endl;
-      it_disk = list_disk.begin();
-      while(it_disk != list_disk.end()){
-        unsigned int i = *it_disk;
-        Rcpp::Rcout << i << std::endl;
-        ++it_disk;
-      }
-      Rcpp::Rcout << "___________end list of active disks for t-1______________" << std::endl;
-      ////////////////////////////check////////////////////////////////////
-      
-      
-      
-      //-----------------------new geom D_tt--------------------------------------
-      geom_activ = Geom(t); 
+      //-----------------------new geom D_tt------------------------------------
+      geom_activ = Geom(t,list_disk); 
       list_geom.push_back(geom_activ);
       std::list<unsigned int> list_activ_disk;//!!!!!!list of active disks for t
       Rcpp::Rcout << "___________4____________________" << std::endl;
-      //-----------------First run: search min------------------------------------
+      //-----------------First run: search min----------------------------------
       it_list = list_geom.begin();
       while(it_list != list_geom.end()){
         geom_activ = *it_list;
@@ -223,7 +207,7 @@ void OP::algoFPOP(std::vector<double>& y1, std::vector<double>& y2, int type){
       }
       m[t + 1] = min_val + penalty;     // new min 
       Rcpp::Rcout << "___________5____________________" << std::endl;
-      //-----------------best last changepoints and means-------------------------
+      //-----------------best last changepoints and means-----------------------
       last_chpt_mean[0][t] = lbl;       //last_chpt_mean[0] - vector of best last chpt
       last_chpt_mean[1][t] = mean1;     //last_chpt_mean[1] - vector of means (lbl,t) for y1
       last_chpt_mean[2][t] = mean2;     //last_chpt_mean[2] - vector of means (lbl,t) for y2
@@ -255,8 +239,15 @@ void OP::algoFPOP(std::vector<double>& y1, std::vector<double>& y2, int type){
         lbl = geom_activ.get_label_t();
         Cost cost_inter = Cost(lbl, t, sy12[lbl], sy12[t + 1], m[lbl]);
         double r2_inter = (m[t + 1] - m[lbl] - cost_inter.get_coef_Var())/cost_inter.get_coef();
+        Rcpp::Rcout << "____________r2_inter__________________" << std::endl;
+        Rcpp::Rcout << r2_inter << std::endl;
         //------------------------condition  PELT-------------------------------
-        if (r2_inter <= 0){it_list = list_geom.erase(it_list);}   //delete geom PELT 
+        if (r2_inter <= 0){
+          Rcpp::Rcout << "____________delete geom lbl PELT________________________" << std::endl;
+          Rcpp::Rcout << geom_activ.get_label_t()<< std::endl;
+          it_list = list_geom.erase(it_list);
+          --it_list;
+          }   //delete geom PELT 
         //-------------------------------FPOP-----------------------------------
         if (type >= 1){
           if (r2_inter > 0){
@@ -266,26 +257,21 @@ void OP::algoFPOP(std::vector<double>& y1, std::vector<double>& y2, int type){
             it_list = list_geom.erase(it_list);
             it_list = list_geom.insert(it_list, geom_activ);//update list element
             //------------------------condition  FPOP INTER---------------------
-            if (geom_activ.empty_set(geom_activ.get_rect_t())){ it_list = list_geom.erase(it_list);//delete geom, intersection is empty
-              
+            if (geom_activ.empty_set(geom_activ.get_rect_t())){
+              it_list = list_geom.erase(it_list);//delete geom, intersection is empty
+              --it_list; 
               Rcpp::Rcout << "____________delete intersectoin________________________" << std::endl;
             }
             else {list_activ_disk.push_back(geom_activ.get_label_t());}
-            if (type = 2){
+           if (type = 2){
               if (!geom_activ.empty_set(geom_activ.get_rect_t())){ //intersection isn't empty
                 //------------------FPOP DIF------------------------------------
+                list_disk = geom_activ.get_disks_t_1();
                 it_disk = list_disk.begin();
-                unsigned int j = *it_disk;
                 Rcpp::Rcout << "____________attention________________________" << std::endl;
-                while( j < lbl){
-                  Rcpp::Rcout << "j =" << std::endl;
-                  Rcpp::Rcout << j << std::endl;
-                  Rcpp::Rcout << "lbl=" << std::endl;
-                  Rcpp::Rcout << lbl << std::endl;
-                  Rcpp::Rcout << "____________end attention________________________" << std::endl;
-                  
-                  Cost cost_dif = Cost(j, lbl-1, sy12[j], sy12[lbl], m[j]);
-                  double r2_dif = (m[lbl] - m[j] - cost_dif.get_coef_Var())/cost_dif.get_coef();
+                while( it_disk != list_disk.end()){
+                  Cost cost_dif = Cost(*it_disk , lbl-1, sy12[*it_disk], sy12[lbl], m[*it_disk]);
+                  double r2_dif = (m[lbl] - m[*it_disk] - cost_dif.get_coef_Var())/cost_dif.get_coef();
                   Rcpp::Rcout << "____________r2_dif________________________" << std::endl;
                   Rcpp::Rcout << r2_dif << std::endl;
                   //------------------difference--------------------------------
@@ -295,15 +281,16 @@ void OP::algoFPOP(std::vector<double>& y1, std::vector<double>& y2, int type){
                     it_list = list_geom.erase(it_list);
                     it_list = list_geom.insert(it_list, geom_activ);//update geom
                     //------------------condition  FPOP DIF---------------------
-                    if (geom_activ.empty_set(geom_activ.get_rect_t())){ it_list = list_geom.erase(it_list);//delete geom, difference is empty
+                    if (geom_activ.empty_set(geom_activ.get_rect_t())){ 
+                      it_list = list_geom.erase(it_list);//delete geom, difference is empty
+                      --it_list;
                       Rcpp::Rcout << "____________delete difference________________________" << std::endl;
                     }
                   }//if (r2_dif > 0)
                   ++it_disk;
-                  j = *it_disk;
-                }//while( j < lbl)
+                }//while( it_disk != list_disk.end())
               }//if (!geom_activ.empty_set(geom_activ.get_rect_t())
-            }//if (type = 2)
+       }//if (type = 2)        
           }//if (r2_inter > 0)
         }//if (type >= 1)
         ++it_list;
