@@ -161,6 +161,8 @@ void OP::algoFPOP(std::vector<double>& y1, std::vector<double>& y2, int type){
                     if (geom_activ.empty_set(geom_activ.get_rect_t())){ 
                       it_list = list_geom.erase(it_list);//delete geom, difference is empty
                       --it_list;
+                      it_disk = list_disk.end();
+                      --it_disk;
                     }
                   }//if (r2_dif > 0)
                   ++it_disk;
