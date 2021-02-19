@@ -17,7 +17,7 @@
 class OP{
 public:
 //------------------------------constructor-------------------------------------//
-  OP(){};
+  OP();
   OP(std::vector<double>& y1, std::vector<double>& y2, double beta);
 //---------------------------------destructor-----------------------------------//
   ~OP();
@@ -42,7 +42,6 @@ public:
 //-------------------------------algoFPOP---------------------------------------//
   void algoFPOP(std::vector<double>& y1, std::vector<double>& y2, int type);
   
-  void algoFPOP2(std::vector<double>& y1, std::vector<double>& y2, int type);//!!!!!!!!!!!
   
 private:
   double penalty;                                       //value of penalty 

@@ -33,15 +33,14 @@ List FPOP2D(std::vector<double> data1, std::vector<double> data2, double penalty
   //----------stop--------------------------------------------------------------
   if(data1.size() != data2.size()){throw std::range_error("data1 and data2 have different length");}
   if(penalty < 0) {throw std::range_error("penalty should be a non-negative number");}
-  if(type < 1 || type > 2)
-  {throw std::range_error("type must be one of: 1 or 2");}
+  if(type < 0 || type > 2)
+  {throw std::range_error("type must be one of: 0, 1 or 2");}
   //----------------------------------------------------------------------------
  
   OP Y = OP(data1, data2, penalty);
   
-  if(type == 1) {Y.algoFPOP(data1, data2, type);}     //FPOP algorithm: type of pruning  = intersection
-  if(type == 2) {Y.algoFPOP(data1, data2, type);}     //FPOP algorithm: type of pruning = intersection \ union
-
+  Y.algoFPOP(data1, data2, type);     //FPOP algorithm: type of pruning  = intersection
+  
   List res;
   res["changepoints"] = Y.get_changepoints();
   res["means1"] = Y.get_means1();
