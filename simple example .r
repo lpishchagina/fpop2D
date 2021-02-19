@@ -15,3 +15,21 @@ data1
 
 resFPOP1<- FPOP2D(data1[1,], data1[2,], penalty, type= 1)
 resFPOP1
+
+
+
+
+n <- 10
+chp <- c(5,10)
+mu1 <- c(5, 10)
+mu2 <- c(0, 1)
+sigma <-1
+
+penalty <- 2*log(n)
+data1 <- data_gen2D(n, chp, mu1, mu2, sigma)
+data1
+
+
+
+resFPOP1<- FPOP2D(data1[1,], data1[2,], penalty, type= 1)
+resFPOP1

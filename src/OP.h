@@ -38,10 +38,11 @@ public:
 //------------------------------vect_sy12---------------------------------------//
   double** vect_sy12(std::vector<double>& y1, std::vector<double>& y2);
 
+  double r2_disk(unsigned int lbl, unsigned int t);
 //-------------------------------algoFPOP---------------------------------------//
-
-
   void algoFPOP(std::vector<double>& y1, std::vector<double>& y2, int type);
+  
+  void algoFPOP2(std::vector<double>& y1, std::vector<double>& y2, int type);//!!!!!!!!!!!
   
 private:
   double penalty;                                       //value of penalty 
@@ -51,9 +52,13 @@ private:
   std::vector<double> means1;                           // means vector for y1
   std::vector<double> means2;                           // means vector for y2        
   double globalCost;                                    // value of global cost
+  double* m;                                            // "globalCost" = m[n+1] - changepoints.size()*penalty
   Geom geom_activ;
   std::list<Geom> list_geom;                            //list of geom
   std::list<Geom> ::iterator it_list;                   // iterator for list of geom 
+  
+  std::list<unsigned int> list_disk;//!!!!!!
+  std::list<unsigned int> ::iterator it_disk;//!!!!!!
 };
 //############################# End Class OP #####################################//
 #endif //OP_H

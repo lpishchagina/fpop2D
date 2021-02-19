@@ -16,9 +16,10 @@ public:
   Geom(){};
   Geom(unsigned int t);
   Geom(double c1, double c2, double r, unsigned int t);
-  //-----------------difference and intersection--------------------------------//
+  //------------------------------accessory-------------------------------------//
   unsigned int get_label_t();
   Rect get_rect_t();
+
   //----empty, difference_rect_disk and intersection_rect_disk------------------// 
   bool empty_set(Rect R);         //checking for emptiness of an approximated set 
   void intersection_rect_disk(Disk disk);                //intersection approximation

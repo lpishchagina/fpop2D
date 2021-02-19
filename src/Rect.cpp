@@ -102,7 +102,7 @@ void Rect::intersection(Disk disk){
       fl = false;
     }
   }
-  if (fl) {rectx0 = rectx1;Rcpp::Rcout << "not update" << std::endl;}  //empty set
+  if (fl) {rectx0 = rectx1;}  //empty set
 }
 
 //##############################difference######################################//
