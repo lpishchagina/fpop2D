@@ -27,7 +27,6 @@ public:
   std::vector<double> get_means2() const;
   double get_globalCost() const;
   unsigned int get_n() const;
-  
   Geom get_geom_activ() const;
   std::list<Geom> ::iterator get_it_list() const;
   double** get_sy12();
@@ -56,8 +55,8 @@ private:
   std::list<Geom> list_geom;                            //list of geom
   std::list<Geom> ::iterator it_list;                   // iterator for list of geom 
   
-  std::list<unsigned int> list_disk;//!!!!!!
-  std::list<unsigned int> ::iterator it_disk;//!!!!!!
+  std::list<unsigned int> list_disk;                    //list of disks
+  std::list<unsigned int> ::iterator it_disk;           //iterator for disks
 };
 //############################# End Class OP #####################################//
 #endif //OP_H

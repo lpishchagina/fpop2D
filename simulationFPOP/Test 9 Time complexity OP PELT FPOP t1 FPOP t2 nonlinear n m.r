@@ -85,7 +85,7 @@ colnames(T9_resFPOP2Dt2) <- c("n", paste0("Rep", 1:T9_nRep))
 T9_sigma <- 1
 
 for(i in 1:length(T9_vect_n)){
-  T9_chp <- c(sort(runif(T9_vect_m[i] - 1,0,T9_vect_n[i]-1)), T9_vect_n[i])
+  T9_chp <- c(sort(floor(runif(T9_vect_m[i] - 1,0,T9_vect_n[i]-1))), T9_vect_n[i])
   T9_mu1 <- rpois(T9_vect_m[i], 10)
   T9_mu2 <- rpois(T9_vect_m[i], 5)
   T9_penalty <- 2 * T9_sigma * log(T9_vect_n[i])

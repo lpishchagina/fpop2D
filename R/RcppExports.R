@@ -8,7 +8,7 @@
 #' @param data1 is a vector of data1(a univariate time series).                                
 #' @param data2 is a vector of data2(a univariate time series).                                
 #' @param penalty is a value of penalty (a non-negative real number).                                        
-#' @param type is a value defining the  type of pruning (0 = PELT, 1 = intersection set, 2 = difference of intersection and union set ).       
+#' @param type is a value defining the  type of pruning (0 = PELT, 1 = FPOP(intersection of sets), 2 = FPOP(intersection of set \ union of set ).       
 #'                                                                                                          
 #' @return a list of 4 elements  = (changepoints, means1, means2, globalCost).                    
 #'  

@@ -1,0 +1,805 @@
+\documentclass{report}
+\usepackage[left=3cm,right=3cm, top=3cm,bottom=3cm,bindingoffset=0cm]{geometry}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\begin{document}
+	\begin{center} \section*{Package fpop2D}\end{center}
+
+	\parindent = 0pt
+	\subsection*{Description}
+	
+	{\bfseries fpop2D} is an R package developed in Rcpp/C++ performing parametric changepoint detection in bivariate time series with  the Gaussian cost function. Changepoint detection uses the Functional Pruning Optimal Partitioning method (FPOP) based on an exact dynamic programming algorithm.
+	
+	The package implements FPOP method with two types of pruning: "intersection of sets" and "difference of intersection and union of sets". Also, the package implements the Pruned Exact Linear Time(PELT) method that is a direct part of the FPOP method.
+	
+	\subsection*{Package structure}
+	\begin{itemize}
+		\item  Part R
+		\begin{itemize}
+			\item \underline {fpop2D.R}
+			
+			The file contains the implementation of the following functions:
+			
+			 {\bfseries data\_gen2D} - generation of data of dimension 2 with a given values of means and changepoints
+			 
+			 {\bfseries plotFPOP2D} - plot of data with a  values of means and changepoints.
+			 
+			\item \underline {RcppExports.R} 
+			
+			The file contains the implementation of the function {\bfseries FPOP2D} that calls the function {\bfseries FPOP2D} implemented in C++.
+			
+		\end{itemize}
+		\item Part C++
+		\begin{itemize}
+			\item \underline {Cost.h, Cost.cpp} 
+			
+			The files contain the implementation code for the class\hyperref [Cost]{\bfseries Cost}. 	
+			
+			\item \underline{Disk.h, Disk.cpp}
+			
+			The files contain the implementation code for the class \hyperref [Disk]{\bfseries Disk}. 
+			
+			\item  \underline{Rect.h, Rect.cpp}
+			
+			The files contain the implementation code for the class\hyperref [Rect] {\bfseries Rect}.
+			 
+			\item \underline{Geom.h, Geom.cpp} 
+			
+			The files contain the implementation code for the class \hyperref [Geom]{\bfseries Geom}. 
+			
+			\item \underline{OP.h, OP.cpp}
+			
+			The files contain the implementation code for the class \hyperref [OP]{\bfseries OP}. 
+			
+			\item \underline{fpop2D.cpp}
+			
+			The file contains the code of the function {\bfseries FPOP2D} that implements the change-point detection in bivariate time-series using the Functional Pruning Optimal Partitioning algorithm.
+			
+			\item \underline{RcppExports.cpp} 
+			
+			The file contains the code that exports data R/C ++ .	
+		\end{itemize}
+	\end{itemize}
+
+\newpage
+	
+	We consider $(y_1, y_2)\in(R^2)^n$ - bivariate time-series when $y_1 = (y_1^1,..,y_n^1)$ and  $y_2 = (y_1^2,..,y_n^2)$ - two vectors of univariate data size $n$.
+	
+	We use the Gaussian cost of the segmented bivariate data when $m_{t}$ is the value of the optimal cost, $m_{0} = -\beta $. The cost function has the form: 
+	
+	\begin{equation}
+		q_t^i( \theta_1,\theta_2 ) = 	m_{i-1} + \beta + (t-i+1)(( \theta_1 - E[y^1_{i:t}])^2 + ( \theta_2 - E[y^2_{i:t}])^2) + (t-i+1)(V(y^1_{i:t}) + V(y^2_{i:t}) ) , \hspace*{5mm} i = 1:t.
+	\label{eq:cost}
+	\end{equation}
+	
+	\begin{equation}
+		E[y_{i:t}^k] = \frac{1}{t - i + 1}\sum_{l=i}^{t}(y_{i:t}^k) ,\hspace*{5mm} k = 1,2.
+	\label{eq:mean}
+	\end{equation}
+	
+	\begin{equation}
+		V(y_{i:t}^k) = \frac{1}{t - i + 1}\sum_{l=i}^{t}(y_{i:t}^k)^2 - \left(\frac{1}{t - i + 1}\sum_{l=i}^{t}(y_{i:t}^k)\right)^2 ,\hspace*{5mm} k = 1,2.
+	\label{eq:var}
+	\end{equation}
+	
+	In the case of a Gaussian cost $q_t^i(\theta_1,\theta_2)$ is a paraboloid so that: 
+	\begin{equation}
+		m_t = min_{i = 1:t} \left\{m_{i-1} + (t-i+1)(V(y_{i:t}^1) + V(y_{i:t}^2)) + \beta  \right\}.
+	\label{eq:min}
+	\end{equation}
+	
+	We introduce the notations:
+	
+	\begin{equation}
+		\begin{gathered}
+			mu1 = E[y_{i:t}^1],\\
+			mu2 = E[y_{i:t}^2],\\
+			coef = (t - i + 1),\\
+			mi\_1\_p = m_{i-1} + \beta,\\
+			coef\_Var = (t-i+1)(V(y_{i:t}^1) + V(y_{i:t}^2)).
+		\end{gathered}
+		\label{eq:coef}
+	\end{equation}
+	
+	Then the cost function  takes the form:
+	
+		\begin{equation}
+	q_t^i(\theta_1,\theta_2) = mi\_1\_p+ coef\cdot((\theta_1 - mu1)^2 + (\theta_2 -mu1)^2) + coef\_Var, \hspace*{5mm} i = 1:t.
+	\label{eq:costcoef}
+	\end{equation}
+	
+	\subsection*{Class  Cost}
+	\label{Cost}
+	
+	We define the class characteristics (\ref{eq:coef}): 
+	
+	\begin{itemize}
+		\item {\bfseries coef}, {\bfseries coef\_Var}, {\bfseries mi\_1\_p}, {\bfseries mu1}, {\bfseries mu2} 
+	\end{itemize}
+ 
+	The class implements constructor:
+	\begin{itemize}
+		
+		\item {\bfseries Cost(unsigned int i, unsigned int t, double** vectS, double mi\_1pen)} is the cost function at the time $[i,t]$. 
+	\end{itemize}
+	
+	We define the class methods:
+	
+	\begin{itemize}
+		\item {\bfseries get\_coef()}, {\bfseries get\_coef\_Var()}, {\bfseries get\_mi\_1\_p()}, {\bfseries get\_mu1()}, {\bfseries get\_mu2()}
+		
+		We use these  methods to access the characteristics of the class. 
+		
+		\item {\bfseries get\_min()}
+		
+		We use this method to get the minimum value of the cost function (\ref{eq:min}).
+	\end{itemize} 
+
+\newpage	
+
+	\subsection*{Class Disk}
+	\label{Disk}
+	
+	A class element is a circle that is defined by the center coordinates and the radius.
+	
+	\begin{itemize}
+		\item We define the class characteristics: 
+		\begin{itemize}
+			\item {\bfseries center1, center2}  is the center of the circle.
+		
+			\item {\bfseries radius}  is  the radius of the circle.
+		\end{itemize}
+	
+		\item The class implements two constructors:
+		\begin{itemize}
+			\item {\bfseries Disk()} All characteristics are equal zero by default. 
+		
+			\item {\bfseries Disk(double c1, double c2, double r)}
+		
+			$(c1, c2)$ are the center coordinates and $r$ is  the radius of the circle. 
+		\end{itemize}
+	
+		\item We define the class methods:
+	
+		\begin{itemize}
+			\item {\bfseries get\_center1()}, {\bfseries get\_center2()}, {\bfseries get\_radius()}
+			
+			We use these  methods to access the class characteristics.
+		\end{itemize}
+	\end{itemize}
+	
+	\subsection*{Class Rect}
+	\label{Rect}
+	
+	A class element is a rectangle that is defined by the coordinates of the lower left-hand corner and the upper-right hand corner.
+		
+	\begin{itemize}
+		\item We define the class characteristics: 
+		\begin{itemize}
+			\item {\bfseries rectx0,recty0} are coordinates of the lower left-hand corner.
+			
+			\item {\bfseries rectx1, recty1} are coordinates of the upper-right hand corner.
+		\end{itemize}
+		
+		\item The class implements two constructors:
+		\begin{itemize}
+			\item {\bfseries Rect()}:
+			\begin{itemize}
+					\item $rectx0 = recty0 = -\inf)$;
+					\item $rectx1 = recty1 = \inf)$.
+			\end{itemize}
+			
+			\item {\bfseries Rect(double x0, double y0, double x1, double y1)}
+			\begin{itemize}
+				\item $(x0, y0)$ is the the lower left-hand corner;
+				\item $(x1, y1)$ is the upper-right hand corner. 
+			\end{itemize}	
+		\end{itemize}
+		
+		\item We define the class methods:
+		
+		\begin{itemize}
+			\item {\bfseries get\_rectx0()}, {\bfseries get\_recty0()}, {\bfseries get\_rectx1()},  {\bfseries get\_recty1()}
+			
+			We use these  methods to access the class characteristics.
+			
+			\item {\bfseries min\_ab(double a, double b)}, {\bfseries max\_ab(double a, double b)}
+			
+			We use these  methods  to find the minimum and maximum of two numbers.
+			
+			\item \hyperref [Intersection]{\bfseries intersection(Disk disk)} 
+			
+			The function approximates a rectangle and a circle intersection area by horizontal and vertical lines. Basing on the intersection points of these lines, we construct a rectangle with a minimum area, which contains the intersection area of the rectangle and the circle.
+			
+			\item \hyperref [Difference]{\bfseries difference(Disk disk)} 
+			
+			The function approximates a rectangle and a circle difference area by horizontal and vertical lines. Basing on the intersection points of these lines, we construct a rectangle with a minimum area, which contains the difference area of the rectangle and the circle.
+		\end{itemize}
+	\end{itemize}
+
+	\newpage
+		
+	\subsection*{Class Geom}
+	\label{Geom}
+	
+	\begin{itemize}
+		\item We define the class characteristics: 
+		\begin{itemize}
+			\item {\bfseries label\_t} is the time moment.
+			
+			\item {\bfseries rect\_t} is the rectangle, the element of class {\bfseries Rect}.
+			
+			\item {\bfseries disks\_t\_1} is the list of active circles for the moment $t-1$.
+		\end{itemize}
+		
+		\item The class implements two constructors:
+		\begin{itemize}
+			\item {\bfseries Geom(double c1, double c2, double r, double t, std::list<unsigned int> l\_disk)}
+			\begin{itemize}
+				\item $label\_t = t$;
+				\item $disks\_t\_1 = l\_disk$;
+				\item $rect\_t = Rect(c1-r, c2-r, c1+r, c2+r)$.
+			\end{itemize}
+			
+			\item {\bfseries Geom(double t, std::list<unsigned int> l\_disk)}
+			\begin{itemize}
+				\item $label\_t = t$;
+				\item $disks\_t\_1 = l\_disk$;
+				\item $rect\_t = Rect()$.
+			\end{itemize}	
+		\end{itemize}
+		
+		\item We define the class methods:
+		
+		\begin{itemize}
+			\item {\bfseries get\_label\_t()}, {\bfseries get\_rect\_t()}, {\bfseries get\_disks\_t\_1()}
+			
+			\item {\bfseries bool empty\_set(Rect R)}
+			
+			The function checks the parameters of the rectangle {\bfseries R}. If the parameters are not correct, this rectangle is empty. 
+			
+			\item {\bfseries intersection\_rect\_disk(Disk disk)} 
+			
+			The function calls the function {\bfseries intersection(Disk disk)}  implemented in the Rect class.
+			
+			\item {\bfseries difference\_rect\_disk(Disk disk)} 
+			
+			The function calls the function {\bfseries difference(Disk disk)}  implemented in the Rect class.
+				
+		\end{itemize}
+	\end{itemize}
+
+	\newpage	
+	\subsection*{Class OP}
+	\label{OP}
+	
+	\begin{itemize}
+		\item We define the class characteristics: 
+		
+		\begin{itemize}
+			\item {\bfseries n} is the number of data points.
+			
+			\item {\bfseries penalty} is a value of penalty (a non-negative real number).
+			
+			\item {\bfseries sy12} are sum vectors $\sum_{k=1}^{t} y^1_k$,  $\sum_{k=1}^{t}y^2_k$, $\sum_{k=1}^{t} (y^1_k)^2$,  $\sum_{k=1}^{t} (y^2_k)^2$, $t = 1:n$ .
+			
+			\item {\bfseries m} is the vector of the optimal cost value + $penalty$.
+			
+			\item {\bfseries changepoints} is the vector of changepoints.
+			
+			\item {\bfseries means1} is the vector of successive means for data1.
+			
+			\item {\bfseries means2} is the vector of successive means for data2.
+			
+			\item {\bfseries globalCost} is the global cost.
+			
+			\item {\bfseries geom\_activ} is the element of Geom class.
+			
+			\item {\bfseries list\_geom} is the list of Geom class element.
+			
+			\item {\bfseries it\_disk} is the iterator for {\bfseries list\_geom}.
+			
+			\item {\bfseries list\_disk} is the list of active labels for the moment $t-1$.
+			
+			\item {\bfseries it\_disk} is the iterator for {\bfseries list\_disk}.
+		\end{itemize}
+		
+		\item The class implements the constructor:
+		
+		\begin{itemize}
+			\item {\bfseries OP(std::vector$<$double$>$ y1, std::vector$<$double$>$ y2, double beta)}
+			\begin{itemize}
+				\item $penalty = beta$;
+				
+				\item $n = y1.size()$;
+				
+				\item we allocate memory for $sy12, m$.
+			\end{itemize}	
+		\end{itemize}
+		
+		\item We define the class methods:
+		
+		\begin{itemize}
+			\item {\bfseries get\_changepoints()}, {\bfseries get\_means1()}, {\bfseries get\_means2()}, {\bfseries get\_globalCost()}, {\bfseries get\_n()}, {\bfseries get\_sy12()}, {\bfseries get\_geom\_activ()}, {\bfseries get\_it\_list()}  
+			
+			We use these  methods to access the class characteristics.
+			
+			\item {\bfseries vect\_sy12(std::vector$<$double$>$ y1, std::vector$<$double$>$ y2)}
+			
+			We use this method to find the sum vectors $\sum_{k=1}^{t} y^1_k$,  $\sum_{k=1}^{t}y^2_k
+			$, $\sum_{k=1}^{t} (y^1_k)^2$,  $\sum_{k=1}^{t} (y^2_k)^2$, $t = 1:n$. 
+			
+			\item \hyperref [algoFPOP] {\bfseries algoFPOP(std::vector$<$double$>$ y1, std::vector$<$double$>$ y2, int type)} 
+			
+			The function implements the Functional Pruning Optimal Partitioning algorithm with two types of pruning: "intersection of sets"($type = 1$) and "difference of intersection and union of sets"($type = 2$). Also, the package implements the Pruned Exact Linear Time(PELT) method ($type = 0$).
+		\end{itemize}
+	\end{itemize}
+
+\newpage
+
+\label{Intersection}	
+\begin{center} 
+	\section*{void Rect::intersection(Disk disk)}
+\end{center}
+
+\parindent = 0pt
+\subsection*{Description}
+
+The function approximates a rectangle and a circle intersection area by horizontal and vertical lines. Basing on the intersection points of these lines, we construct a rectangle with a minimum area, which contains the intersection area of the rectangle and the circle.
+
+If there is no intersection, the function makes the rectangle with parameters that correspond to the condition: 
+
+\begin{equation}
+	(rectx0 \ge rectx1) || (recty0 \ge recty1).
+	\label{eq:cond1}
+\end{equation}
+
+\subsection*{Input parameters:}
+
+The input of this function:
+
+\begin{itemize}
+	\item {\bfseries disk}  is the circle, the element of class {\bfseries Disk} with characteristics:
+	\begin{itemize}
+		\item {\bfseries center1, center2}  is the center of the circle;
+		\item {\bfseries radius}  is  the radius of the circle.
+	\end{itemize}
+	
+	To access these characteristics we use the methods {\bfseries get\_center1()}, {\bfseries get\_center2()}, {\bfseries get\_radius()} implemented in the class {\bfseries Disk}.
+\end{itemize}
+
+\subsection*{Algorithm:}
+
+\subsubsection*{Preprocessing}
+
+Using the methods {\bfseries get\_center1()}, {\bfseries get\_center2()}, {\bfseries get\_radius()} implemented in the class {\bfseries Disk} we define the parameters of the circle {\bfseries disk}:
+
+\begin{equation}
+	\begin{gathered}
+		c1 = disk.get\_center1(),\\
+		c2 = disk.get\_center2(),\\
+		r = disk.get\_radius().
+		\label{eq:paramdisk}
+	\end{gathered}
+\end{equation}
+
+\subsubsection*{Approximation}
+
+We consider two directions and update the characteristics of rectangle:
+
+\begin{itemize}
+	
+	\item \underline {horizontal direction(the characteristics $recty0, recty1$)}:
+	
+	If   $rectx0 \le c1\le rectx1$ then
+	\begin{equation}
+		\begin{gathered}
+			recty0 = \max\{recty0, c2-r\},\\
+			recty1 = \min\{recty1, c2+r\}.
+		\end{gathered}
+	\end{equation}
+	
+	Otherwise, we consider the points of intersection of the circle with straight lines $x = rectx0$ and $x = rectx1$. The circle has two intersection points with a straight line if the discriminant is positive. We define the values $dl, dr$ (\ref{eq:diskriminant1}) as the value of a discriminant devided by  $4$ of each system (\ref{eq:sys1}, \ref{eq:sys2}):
+	
+	\begin{equation}
+		\begin{cases}
+			(x - c1)^2 + (y - c2)^2 = r^2,\\ 
+			x = rectx0.
+		\end{cases}
+		\label{eq:sys1}
+	\end{equation}
+	
+	\begin{equation}
+		\begin{cases}
+			(x - c1)^2 + (y - c2)^2 = r^2,\\ 
+			x = rectx1.
+		\end{cases}
+		\label{eq:sys2}
+	\end{equation}
+	
+	\begin{equation}
+		\begin{gathered}
+			dl = r^2 - (rectx0 - c1)^2,\\
+			dr = r^2 - (rectx1 - c1)^2,\\
+			\label{eq:diskriminant1}
+		\end{gathered}
+	\end{equation}
+	
+	{\bfseries Note:} we define the default intersection points for the algorithm to work correctly as:
+	\begin{equation}
+		\begin{gathered}
+			l1 = r1 =  \infty,\\
+			l2 = r2 = -\infty.
+			\label{eq:lrinf}
+		\end{gathered}
+	\end{equation}
+	
+	We check the sign of $dl, dr$ and find the intersection points:
+	
+	\begin{equation}
+		\begin{cases}
+			dl > 0,\\ 
+			l1 = c2 - \sqrt {dl},\\
+			l2 = c2 + \sqrt {dl}.
+			\label{eq:l1l2}
+		\end{cases}
+	\end{equation}
+	
+	\begin{equation}
+		\begin{cases}
+			dr > 0,\\ 
+			r1 = c2 - \sqrt {dr},\\
+			r2 = c2 + \sqrt {dr}.
+			\label{eq:r1r2}
+		\end{cases}
+	\end{equation}
+	
+	We define the characteristics of rectangle as:
+	
+	\begin{equation}
+		\begin{gathered}
+			recty0 = \max\{recty0, \min\{l1, r1\}\},\\
+			recty1 = \min\{recty1, \max\{l2, r2\}\}.
+		\end{gathered}
+	\end{equation}
+	
+	\item \underline {vertical direction (the characteristics $rectx0, rectx1$) }
+	
+	If   $recty0 \le c2 \le recty1$ then
+	
+	\begin{equation}
+		\begin{gathered}
+			rectx0 = \max\{rectx0, c1-r\},\\
+			rectx1 = \min\{rectx1, c1+r\}.
+		\end{gathered}
+	\end{equation}
+	
+	Otherwise, we consider the points of intersection of the circle with straight lines $y = recty0$ and $y = recty1$. The circle has two intersection points with a straight line if the discriminant is positive. We define the values $db, dt$ (\ref{eq:diskriminant2}) as the value of a discriminant devided by  $4$ of each system (\ref{eq:sys3}, \ref{eq:sys4}):
+	
+	\begin{equation}
+		\begin{cases}
+			(x - c1)^2 + (y - c2)^2 = r^2,\\ 
+			y = recty0.			
+		\end{cases}
+		\label{eq:sys3}
+	\end{equation}
+	
+	\begin{equation}
+		\begin{cases}
+			(x - c1)^2 + (y - c2)^2 = r^2,\\ 
+			y = recty1.				
+		\end{cases}
+		\label{eq:sys4}
+	\end{equation}
+	
+	\begin{equation}
+		\begin{gathered}
+			db = r^2 - (recty0 - c2)^2,\\
+			dt = r^2 - (recty1 - c2)^2.
+			\label{eq:diskriminant2}
+		\end{gathered}
+	\end{equation}
+	{\bfseries Note:} we define the default intersection points for the algorithm to work correctly as:
+	
+	\begin{equation}
+		\begin{gathered}
+			b1 = t1 =  \infty,\\
+			b2 = t2 = -\infty.
+			\label{eq:btinf}
+		\end{gathered}
+	\end{equation}
+	
+	We check the sign of $db, dt$ and find the intersection points:
+	
+	\begin{equation}
+		\begin{cases}
+			db > 0,\\ 
+			b1 = c1 - \sqrt {db},\\
+			b2 = c1 + \sqrt {db}.
+			\label{eq:b1b2}
+		\end{cases}
+	\end{equation}
+	
+	\begin{equation}
+		\begin{cases}
+			dt > 0,\\ 
+			t1 = c1 - \sqrt {dt},\\
+			t2 = c1 + \sqrt {dt}.
+			\label{eq:t1t2}
+		\end{cases}
+	\end{equation}
+	
+	We define the characteristics of rectangle as:
+	
+	\begin{equation}
+		\begin{gathered}
+			rectx0 = \max\{rectx0, \min\{b1, t1\}\},\\
+			rectx1 = \min\{rectx1, \max\{b2, t2\}\}.
+		\end{gathered}
+	\end{equation}
+	
+	\item If all the values $dl$, $dr$, $db$, $dt$  are non-positive,  the rectangle has no intersections with the circle and we define the characteristics of rectangle as: 
+	\begin{equation}
+		rectx0 = rectx1.
+		\label{eq:empty}
+	\end{equation}
+	
+\end{itemize}	
+
+\label{Empty}
+\begin{center} 
+	\section*{\bfseries bool Geom::empty\_set(Rect rect)}
+\end{center} 
+
+\subsection*{Description}
+
+The function checks the parameters of the rectangle. If the parameters are not correct, this rectangle is empty. 
+
+\subsection*{Input parameters:}
+
+\begin{itemize}
+	\item {\bfseries	rect} is the rectangle, the element of class {\bfseries Rect} with characteristics:
+	
+	\begin{itemize}
+		\item {\bfseries rectx0,recty0} are coordinates of the bottom left corner;
+		\item {\bfseries rectx1, recty1} are coordinates of the top right corner.
+	\end{itemize}
+\end{itemize}
+
+To access these characteristics we use the methods  {\bfseries get\_rectx0()}, {\bfseries get\_recty0()}, {\bfseries get\_rectx1()}, {\bfseries get\_recty1()}, implemented in the class {\bfseries Rect}.checks the parameters  of the rectangle.
+
+\subsection*{Output parameters:}
+
+The function returns a boolean value {\bfseries true} if the rectangle is empty, and {\bfseries false} if it is not empty.
+
+\subsection*{Algorithm:}
+
+If the parameters of the rectangle correspond to the condition (\ref{eq:cond1}) this rectangle is empty and the function returns a boolean value {\bfseries true}, else  {\bfseries false}.
+
+\newpage
+
+\label{Difference}
+\begin{center} 
+	\section*{void Rect::difference(Disk disk)}
+\end{center}
+\parindent = 0pt
+\subsection*{Description}
+
+The function approximates a rectangle and a circle difference area by horizontal and vertical lines. Basing on the intersection points of these lines, we construct a rectangle with a minimum area, which contains the difference area of the rectangle and the circle.
+
+If the difference is the empty set, the function makes the rectangle with parameters that correspond to the condition (\ref{eq:cond1}).
+
+\subsection*{Input parameters:}
+
+The input of this function consists:
+
+\begin{itemize}	
+	\item {\bfseries disk}  is the circle, the element of class {\bfseries Disk} with characteristics:
+	\begin{itemize}
+		\item {\bfseries center1, center2}  is the center and {\bfseries radius}  is  the radius of the circle.
+	\end{itemize}
+	
+	To access these characteristics we use the methods {\bfseries get\_center1()}, {\bfseries get\_center2()}, {\bfseries get\_radius()} implemented in the class {\bfseries Disk}.
+\end{itemize}
+
+\subsection*{Algorithm:}
+
+\subsubsection*{Preprocessing}
+
+We define:
+
+\begin{itemize}
+	\item the parameters of the circle {\bfseries disk} (\ref{eq:paramdisk}),
+	
+	\item the values $dl, dr, db, dt$ (\ref{eq:diskriminant1},\ref{eq:diskriminant2}).	
+\end{itemize}
+
+\subsubsection*{Approximation}
+
+We consider two directions and update the characteristics of rectangle:
+
+\begin{itemize}
+	
+	\item \underline {horizontal direction(the characteristics $recty0, recty1$)}:
+	
+	We consider the points of intersection of the circle with straight lines $x = rectx0$ and $x = rectx1$. We update the characteristics $recty0, recty1$ if $dl$ and $dr$ (\ref{eq:diskriminant1}) is positive.
+	
+	{\bfseries Note:} we define the default intersection points for the algorithm to work correctly as (\ref{eq:lrinf}).
+	
+	We check the sign of $dl, dr$ and find the intersection points (\ref{eq:l1l2}) and (\ref{eq:r1r2}).
+	
+	We define the characteristics of rectangle as:
+	
+	\begin{equation}
+		\begin{gathered}
+			recty0 = \max\{recty0, \min\{l2, r2\}\},\\
+			recty1 = \min\{recty1, \max\{l1, r1\}\}.
+		\end{gathered}
+	\end{equation}
+	
+	\item \underline {vertical direction (the characteristics $rectx0, rectx1$) }
+	
+	We consider the points of intersection of the circle with straight lines $y = recty0$ and $y = recty1$.  We update the characteristics $rectx0, rectx1$ if $db$ and  $dt$ (\ref{eq:diskriminant2}) is positive.
+	
+	{\bfseries Note:} we define the default intersection points for the algorithm to work correctly as (\ref{eq:btinf}).
+	
+	We check the sign of $db, dt$ and find the intersection points (\ref{eq:b1b2}) and (\ref{eq:t1t2}).
+	
+	We define the characteristics of rectangle as:
+	
+	\begin{equation}
+		\begin{gathered}
+			rectx0 = \max\{rectx0, \min\{b2, t2\}\},\\
+			rectx1 = \min\{rectx1, \max\{b1, t1\}\}.
+		\end{gathered}
+	\end{equation}
+	
+\end{itemize}	
+
+
+\newpage
+
+\label{algoFPOP}
+\begin{center} 
+	\section*{\bfseries void OP::algoFPOP(std::vector$<$double$>$ y1, std::vector$<$double$>$ y2, int type)}
+\end{center} 
+
+\subsection*{Description}
+
+	The function implements FPOP method with two types of pruning: "intersection of sets"($type = 1$) and "difference of intersection and union of sets"($type = 2$) for bivariate time series. Also, the function implements PELT method ($type = 0$).
+
+\subsection*{Input parameters:}
+
+\begin{itemize}
+	\item {\bfseries y1} is the vector of data1 (a univariate time series).
+	\item {\bfseries y2} is the vector of data2 (a univariate time series).
+	\item {\bfseries type} is the value defined the type of pruning ( 0 = PELT, 1 = FPOP(intersection of sets), 2 = FPOP (difference of intersection and union sets)).
+\end{itemize}
+
+\subsection*{Output parameters:}
+
+The function forms the vectors {\bfseries changepoints}, {\bfseries means1, means2} and the value {\bfseries globalCost}.
+
+\subsection*{Algorithm:}
+
+\subsubsection*{Preprocessing}
+
+\begin{itemize}
+	\item We define:
+	\begin{itemize}
+		\item $n = y1.size()$.
+		\item $sy12 = vect\_sy12(y1, y2)$.	
+		\item $m[0] = 0$.
+	\end{itemize}	
+	\item We allocate memory for the matrix $last\_chpt\_mean$:
+	\begin{itemize}
+		\item the vector of best last changepoints.
+		\item the vector of means for best last changepoints $y1$.
+		\item the vector of means for best last changepoints $y2$.
+	\end{itemize}	
+\end{itemize}
+
+\subsubsection*{Processing}
+
+For each $t = 0,..,n-1$ we do:
+ 
+\begin{itemize}
+	\item We define:
+	\begin{itemize}
+		\item $min\_val = \inf$  is a value for searching  of the cost function minimum.
+		\item $lbl$ is a best last position for $t$.
+		\item $mean1$ is a value of mean of the interval $(lbl, t)$ for $y1$.
+		\item $mean2$ is a value of mean of the interval $(lbl, t)$ for $y2$.
+	\end{itemize}
+	\item \underline {New $D_t^t$}
+
+	 We create $geom\_activ$ for the  point $(y^1_t, y^2_t)$ of the bivariate time series as (\ref{eq:firstgeom})  and we add this element to the list $list\_geom$.
+	
+	\begin{equation}
+		geom\_activ = Geom(t, list\_disk).
+		\label{eq:firstgeom}
+	\end{equation}	
+	\item We define $list\_activ\_disk$ is a list of active disks for $t$.	
+	\item \underline {The first run: Searching of $m[t+1]$}
+	
+	For each element of the list $list\_geom$ we do:
+		
+	\begin{itemize}
+		\item We define $u$ is the $label\_t$ of the current element.
+		\item We create $cost\_activ$  is the cost function for the interval $(u,t)$.	
+		\item We find the minimum value  $min\_val$ of the cost function using the method {\bfseries get\_min()}. 
+	\end{itemize}
+	\item We choose the minimum  among all found values ${min\_val}$ and we define the value $lbl$ that correspond this minimum.	
+	\item We put the value $\min{min\_val} + penalty$ to the vector $m$  by the position $t+1$ .	
+	\item We put the values  $lbl$, $mean1$ and $mean2$ that corresponds $m[t+1]$ to the matrix $last\_chpts$.
+	\item \underline {The second run: Pruning}
+	
+	For each element of the list $list\_geom$ we do:
+	
+	\begin{itemize}
+		\item We define the current element and his $label\_t$ as $geom\_activ$ and $lbl$ .
+		\item We define and calculate the cost function for the interval $(lbl,t)$ as \ref{eq:CostInter} and $r2\_inter$ is the radius to the second power of the disk $D_{lbl}^t$ as \ref{eq:radiusInter}.
+		
+		\begin{equation}
+		cost\_inter = Cost(lbl, t, sy12[lbl],sy12[t+1], m[lbl]);
+			\label{eq:CostInter}
+		\end{equation}
+		
+		\begin{equation}
+			r2\_inter = \frac {m[t + 1] - m[lbl] - cost\_inter.get\_coef\_Var()}{   cost\_inter.get\_coef()}.
+			\label{eq:radiusInter}
+		\end{equation}
+		\item If $type \ge 0$:
+		
+		\underline {PELT-pruning:}
+		
+		 If $r2\_inter \le 0$ we delete this element of list $list\_geom$.
+		\
+		\item If $type \ge 1$ and  $r2\_inter > 0$:
+		
+		We define $disk\_inter = Disk(cost\_inter.get\_mu1(), cost\_inter.get\_mu2(), \sqrt{r2\_inter})$.
+		
+		We update the rectangle $rect\_t$ of $geom\_activ$ using the function $intersection\_geom\_disk(disk\_inter)$.
+		
+		\underline {FPOP-pruning(intersection of sets):} 
+	 	\begin{itemize}
+		 	\item If new rectangle $rect\_t$ is empty we delete this element of list $list\_geom$. 	
+		 	\item Else we add  $label\_t$ of $geom\_activ$ to the list $list\_activ\_disk$.
+		\end{itemize}
+		\item If $type = 2$ and $rect\_t$ is not empty:
+			
+		We define the list $list\_disk$ as the list $disks\_t\_1$ of $geom\_activ$.
+				
+		For each element of  $list\_disk$:
+		\begin{itemize} 
+			\item We define his value $*it\_disk$.
+			\item We define and calculate the cost function for the interval $(*it\_disk, lbl-1)$ as \ref{eq:CostDif} and $r2\_dif$ is the radius to the second power of the disk $D^{lbl-1}_{*it\_disk}$ as \ref{eq:radiusDif}.	
+			\begin{equation}
+					cost\_dif = Cost(*it\_disk, lbl-1, sy12[*it\_disk],sy12[lbl], m[*it\_disk]);
+					\label{eq:CostDif}
+			\end{equation}
+			
+			\begin{equation}
+					r2\_dif = \frac {m[lbl] - m[*it\_disk] - cost\_dif.get\_coef\_Var()}{   			cost\_dif.get\_coef()}.
+						\label{eq:radiusDif}
+			\end{equation}
+			\item If $r2\_dif > 0$: 
+		
+			We define $disk\_dif = Disk(cost\_dif.get\_mu1(), cost\_dif.get\_mu2(), \sqrt{r2\_dif})$.
+			
+			We update the rectangle $rect\_t$ of $geom\_activ$ using the function $difference\_geom\_disk(disk\_dif)$.
+			
+			\underline {FPOP-pruning (difference of intersection and union of sets):}
+					
+			If new rectangle $rect\_t$ is empty we delete this element of list $list\_geom$ and we finish to treat the $list\_disk$ elements.
+					
+		\end{itemize} 
+	\item We define the elements of list $list\_disk$ as $list\_activ\_disk$. We will use this list $list\_disk$  as the value of list $disks\_t\_1$ to generate a new element of list $list\_geom$ in the next iteration.
+	\end{itemize} 
+\end{itemize} 
+	
+\subsubsection*{Output:}
+
+Knowing the values of the matrix $last\_chpts$ and vector  $m$ we forme the vectors  $changepoints$, $means1$, $means2$ and the value $globalCost$.
+	
+\end{document}
