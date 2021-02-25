@@ -30,10 +30,7 @@ public:
   Geom get_geom_activ() const;
   std::list<Geom> ::iterator get_it_list() const;
   double** get_sy12();
-//--------------intersection_geom_disk and difference_geom_disk-----------------//  
-  void intersection_geom_disk(Disk disk);
-  void difference_geom_disk(Disk disk);
-  
+
 //------------------------------vect_sy12---------------------------------------//
   double** vect_sy12(std::vector<double>& y1, std::vector<double>& y2);
 
@@ -55,8 +52,8 @@ private:
   std::list<Geom> list_geom;                            //list of geom
   std::list<Geom> ::iterator it_list;                   // iterator for list of geom 
   
-  std::list<unsigned int> list_disk;                    //list of disks
-  std::list<unsigned int> ::iterator it_disk;           //iterator for disks
+  std::list<Disk> list_disk;                    //list of disks
+  std::list<Disk> ::iterator it_disk;           //iterator for disks
 };
 //############################# End Class OP #####################################//
 #endif //OP_H
