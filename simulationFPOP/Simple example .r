@@ -4,9 +4,9 @@ devtools::install_github("lpishchagina/fpop2D")
 library(fpop2D)
 
 n <- 8
-chp <- c(3,6,8)
-mu1 <- c(1, 5,8)
-mu2 <- c(3, 10,1)
+chp <- c(4,8)
+mu1 <- c(4,8)
+mu2 <- c(4,1)
 sigma <- 0.3
 
 penalty <- 2*log(n)
@@ -19,7 +19,7 @@ data
 #[1,] 1.117346 0.7838427 1.115829 5.150744 4.742782  5.196941 8.2546388 8.1164104
 #[2,] 3.055688 3.3488130 2.950066 9.852634 9.995425 10.141932 0.9879179 0.6483118
 
-resPELT<- FPOP2D(data[1,], data[2,], penalty, type = 0)
+resPELT<- FPOP2D(data[1,], data[2,], penalty, type = 2)
 resPELT
 
 #$changepoints
