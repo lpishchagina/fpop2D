@@ -34,7 +34,6 @@ void Geom::delete_disk(Disk d){
     if ( (disk.get_center1() == d.get_center1())  && (disk.get_center2() == d.get_center2()) && (disk.get_radius() == d.get_radius()) ){
       disks_t_1.erase(it);
       it = disks_t_1.end();
-    Rcpp::Rcout<<"delete disk, :)"<<endl;
     }
     else{++it;}
   }

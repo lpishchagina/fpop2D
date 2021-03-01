@@ -1,4 +1,3 @@
-
 <a id="top"></a>
 #  fpop2D Vignette
 ### Liudmila Pishchagina
