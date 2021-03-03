@@ -93,41 +93,45 @@ colors = palet(length(list_exclusion))
 #we define empty plot
 plot(c(0, max_length_interval), c(0,max_quantity_exclusion),main = "The number of exclusion in the interval", xlab = "Time interval", ylab =  "Number of exclusions", type = "n")
 #Plots for all labels
+t  = c(1:max_length_interval)
 for (i in  1:length(list_exclusion)){
   if (length(list_exclusion [[i]]) != 0){
-    points(c(list_exclusion [[i]],0), col = colors[i])
-    lines(c(list_exclusion [[i]],0), col = colors[i])
+    y <- unlist(list_exclusion [[i]])
+    y <- jitter(y,0.8)
+    points(c(y,0), col = colors[i])
+    lines(c(y,0), col = colors[i])
   }
 }
 
 #calculation for the mean plot
 
 #initialization of list
-mean_plot = list(NULL)
-n_plot = list(NULL)
+mean_plot = list(NULL) 
+n_plot = 0
 for (i in 1:max_length_interval) {
   mean_plot[i] = 0
-  n_plot[i] = 0
 }
+ 
+
 #sum calculation for t
 for (i in 1:length(list_exclusion)){
   if (length(list_exclusion [[i]]) != 0){
+     n_plot = n_plot+1
     for (j in 1:length(list_exclusion[[i]])){
       mean_plot[[j]]= mean_plot[[j]] + list_exclusion[[i]][j]
-      n_plot[[j]] = n_plot[[j]] + 1
     }
   }
 }
 #value of mean for t
 for (i in 1:max_length_interval) {
-  mean_plot[[i]] = mean_plot[[i]]/n_plot[[i]]
+  mean_plot[[i]] = mean_plot[[i]]/n_plot
 }
 #list -> vector
 v_mean_plot <- unlist(mean_plot)
 
 #Plots for all labels
 points(c(v_mean_plot, 0),col = "red3")
-lines(c(v_mean_plot, 0),col = "red3")
+lines(c(v_mean_plot, 0),col = "red3", lwd = 3)
 
 ############################### legend ########################################
 location = "topright"
@@ -135,6 +139,7 @@ labels = c("Mean number of exclusions")
 colors = c("red3")
 legend(location, labels, fill = colors)
 
+v_mean_plot
 
 #############################################################################################
 #############################################################################################
