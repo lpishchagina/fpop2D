@@ -64,7 +64,7 @@ res_1_FPOP2
 #"lbl_excl"  is the matrix with n rows.
 #Each row contains a sequence of pairs of integer numbers for the moment t (t = 1:n).
 #Each pair contains two values: candidate of changepoint and quantity of exclusion for this candidate.
-## The values of matrix "lbl_excl" is contained in the file "Test 10 n = 1000 Table lbl_nb_exclusion the data without changepoint.txt"
+## The values of matrix "lbl_excl" is contained in the papier "Test The data without changepoints"
 
 # read matrix
 lbl_excl <- readLines(con = 'test.txt', n = -1)
