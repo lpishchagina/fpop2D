@@ -154,8 +154,8 @@ void Rect::difference(Disk disk){
       b2 = c1 + sqrt(db);
     }
     if (dt > 0){
-      t1 = c1 - sqrt(dr);
-      t2 = c1 + sqrt(dr);
+      t1 = c1 - sqrt(dt);
+      t2 = c1 + sqrt(dt);
     }
     rectx0 = max_ab(rectx0, min_ab(b2, t2));          //x0 = max{x0, min{b2, t2}}
     rectx1 = min_ab(rectx1, max_ab(b1, t1));          //x1 = min{x1, max{b1, t1}}
